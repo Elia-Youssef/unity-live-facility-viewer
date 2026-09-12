@@ -1,0 +1,37 @@
+.app-shell {
+    flex-grow: 1;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-bottom: 44px;
+    background-color: rgba(5, 12, 18, 0.72);
+}
+
+.status-card {
+    min-width: 420px;
+    padding: 24px 28px;
+    background-color: rgba(14, 27, 37, 0.94);
+    border-left-width: 4px;
+    border-left-color: rgb(26, 184, 214);
+}
+
+.eyebrow {
+    margin-bottom: 6px;
+    color: rgb(91, 211, 230);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.title {
+    color: rgb(240, 247, 250);
+    font-size: 30px;
+    -unity-font-style: bold;
+}
+
+.status {
+    margin-top: 8px;
+    color: rgb(178, 197, 207);
+    font-size: 15px;
+}
