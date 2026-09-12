@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/BootstrapShell.uss?fileID=7433441132597879392&amp;guid=7428543fddd099f47864cb7d32442916&amp;type=3#BootstrapShell" />
     <ui:VisualElement name="app-shell" class="app-shell">
         <ui:VisualElement name="status-card" class="status-card">
             <ui:Label text="FACILITY SYSTEM" class="eyebrow" />

@@ -188,7 +188,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.FoundationStatusPresenter
   uiDocument: {fileID: 103204661}
-  styleSheet: {fileID: 7433441132597879392, guid: 7428543fddd099f47864cb7d32442916, type: 3}
   requiredScenePaths:
   - Assets/Scenes/Bootstrap.unity
 --- !u!1 &123950503

@@ -12,6 +12,7 @@ namespace FacilityViewer.Tests
         private const string BootstrapScenePath = "Assets/Scenes/Bootstrap.unity";
         private const string PanelSettingsPath = "Assets/Settings/RuntimePanelSettings.asset";
         private const string UxmlPath = "Assets/UI/Documents/BootstrapShell.uxml";
+        private const string StyleSheetPath = "Assets/UI/Styles/BootstrapShell.uss";
         private const string ShaderPath = "Assets/Art/Shaders/FoundationSurface.shadergraph";
         private const string MaterialPath = "Assets/Art/Materials/Standard/FoundationSurface.mat";
         private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
@@ -58,6 +59,7 @@ namespace FacilityViewer.Tests
 
             Assert.That(root.Q<Label>("title-label"), Is.Not.Null);
             Assert.That(root.Q<Label>("status-label"), Is.Not.Null);
+            Assert.That(AssetDatabase.GetDependencies(UxmlPath), Does.Contain(StyleSheetPath));
         }
 
         [Test]

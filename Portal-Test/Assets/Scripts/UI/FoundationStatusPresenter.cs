@@ -9,7 +9,6 @@ namespace FacilityViewer.UI
     public sealed class FoundationStatusPresenter : MonoBehaviour
     {
         [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private StyleSheet styleSheet;
         [SerializeField] private string[] requiredScenePaths =
         {
             "Assets/Scenes/Bootstrap.unity"
@@ -25,11 +24,6 @@ namespace FacilityViewer.UI
             uiDocument ??= GetComponent<UIDocument>();
 
             VisualElement root = uiDocument.rootVisualElement;
-            if (styleSheet != null && !root.styleSheets.Contains(styleSheet))
-            {
-                root.styleSheets.Add(styleSheet);
-            }
-
             Label titleLabel = root.Q<Label>("title-label");
             Label statusLabel = root.Q<Label>("status-label");
 
