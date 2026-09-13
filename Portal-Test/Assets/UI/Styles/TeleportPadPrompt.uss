@@ -1,0 +1,43 @@
+.teleport-prompt {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: 40px;
+    width: 360px;
+    max-width: 78%;
+    margin-left: -180px;
+    padding: 12px 18px;
+    align-items: center;
+    background-color: rgba(8, 18, 31, 0.92);
+    border-left-width: 2px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(114, 220, 255);
+    border-right-color: rgba(114, 220, 255, 0.38);
+    border-top-color: rgba(114, 220, 255, 0.38);
+    border-bottom-color: rgba(114, 220, 255, 0.38);
+}
+
+.teleport-prompt--visible {
+    display: flex;
+}
+
+.teleport-prompt__action {
+    color: rgb(255, 210, 110);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 0.7px;
+}
+
+.teleport-prompt__destination {
+    margin-top: 4px;
+    color: rgb(237, 250, 255);
+    font-size: 18px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.app-shell--compact-landscape .teleport-prompt {
+    bottom: 20px;
+}

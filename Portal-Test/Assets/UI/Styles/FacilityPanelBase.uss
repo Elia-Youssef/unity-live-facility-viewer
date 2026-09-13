@@ -1,0 +1,34 @@
+.app-shell {
+    position: relative;
+    flex-grow: 1;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+    overflow: hidden;
+}
+
+.app-safe-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+
+.facility-panel,
+.facility-panel__identity,
+.facility-section,
+.facility-section__content,
+.system-status {
+    flex-direction: column;
+}
+
+.facility-section__controls {
+    flex-direction: row;
+}

@@ -130,7 +130,7 @@
 
 .touch-button {
     min-width: 88px;
-    min-height: 64px;
+    min-height: 72px;
     padding-left: 18px;
     padding-right: 18px;
     color: rgb(233, 247, 250);

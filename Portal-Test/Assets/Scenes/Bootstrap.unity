@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 103204661}
   - component: {fileID: 103204662}
   - component: {fileID: 103204663}
+  - component: {fileID: 103204664}
   m_Layer: 0
   m_Name: Application UI
   m_TagString: Untagged
@@ -163,7 +164,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 5ae51d14fb632ef42bbafe4358c6f677, type: 2}
   m_ParentUI: {fileID: 0}
@@ -186,7 +187,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd7bde5a9bd8e8f4d84cccd155b1a8f6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.FoundationStatusPresenter
   uiDocument: {fileID: 103204661}
   requiredScenePaths:
@@ -204,12 +205,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad82d27b18578fc469ff431183645b16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.FacilityTransitionPresenter
   uiDocument: {fileID: 103204661}
   appState: {fileID: 251830127}
   levelTeleportService: {fileID: 251830126}
   inputCoordinator: {fileID: 1061031105}
+--- !u!114 &103204664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103204659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d84465d1d5ac45a38f53d2701c34b06c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.TeleportPadPromptPresenter
+  uiDocument: {fileID: 103204661}
+  appState: {fileID: 251830127}
+  playerInteractor: {fileID: 1061031106}
+  inputRouter: {fileID: 1061031107}
 --- !u!1 &251830124
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +239,7 @@ GameObject:
   - component: {fileID: 251830127}
   - component: {fileID: 251830126}
   - component: {fileID: 251830125}
+  - component: {fileID: 251830129}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -254,7 +272,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d819ca631ded69a4baef4502a4b22ed9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Services.LevelTeleportService
   appState: {fileID: 251830127}
   playerRoot: {fileID: 1061031103}
@@ -274,12 +292,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8212293035a9be45930b48593092c6e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Core.AppState
   transitionPhase: 0
-  currentLevelId:
-  currentLevelName:
-  statusMessage:
+  currentLevelId: 
+  currentLevelName: 
+  statusMessage: 
 --- !u!4 &251830128
 Transform:
   m_ObjectHideFlags: 0
@@ -297,6 +315,21 @@ Transform:
   - {fileID: 1061031104}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &251830129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 251830124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f180acd4154d0c8a3d59437153e42e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Services.TeleportPadTransitionController
+  appState: {fileID: 251830127}
+  levelTeleportService: {fileID: 251830126}
+  playerInteractor: {fileID: 1061031106}
 --- !u!1001 &1061031101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -382,8 +415,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 180c0b070aab46a4d8ccceb6d445ae1b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Player.PlayerInputCoordinator
+--- !u!114 &1061031106 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4226429939816757681, guid: fce5f265041847b4f9a3134daa574b03, type: 3}
+  m_PrefabInstance: {fileID: 1061031101}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061031103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a36f2bcab62f4dfebf0579335b76a952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Player.PlayerTeleportPadInteractor
+--- !u!114 &1061031107 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8842597060214860838, guid: fce5f265041847b4f9a3134daa574b03, type: 3}
+  m_PrefabInstance: {fileID: 1061031101}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061031103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aadfa6f22b323514ba42eb564ccc6fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Player.PlayerInputRouter
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

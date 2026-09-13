@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5716590039370255378}
   - component: {fileID: 3886898337243392157}
   - component: {fileID: 3180909837853331658}
+  - component: {fileID: 4226429939816757681}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -138,6 +139,23 @@ MonoBehaviour:
   inputRouter: {fileID: 8842597060214860838}
   inputModeOverride: 0
   lockCursorInDesktopGameplay: 1
+--- !u!114 &4226429939816757681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 996208555712358123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a36f2bcab62f4dfebf0579335b76a952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Player.PlayerTeleportPadInteractor
+  inputRouter: {fileID: 8842597060214860838}
+  characterController: {fileID: 4905039014906397545}
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2089132044875037987
 GameObject:
   m_ObjectHideFlags: 0
