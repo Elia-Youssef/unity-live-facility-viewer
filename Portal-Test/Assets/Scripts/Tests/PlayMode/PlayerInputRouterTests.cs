@@ -1,10 +1,12 @@
 #if UNITY_EDITOR
 using System;
 using System.Reflection;
+using System.Collections;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.TestTools;
 
 namespace FacilityViewer.Tests
 {
@@ -94,6 +96,37 @@ namespace FacilityViewer.Tests
                 {
                     UnityEngine.Object.DestroyImmediate(playerInput.gameObject);
                 }
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayerEnabledAfterItsParentClaimsDesktopDevicesAndEnablesGameplay()
+        {
+            Keyboard keyboard = InputSystem.AddDevice<Keyboard>();
+            Mouse mouse = InputSystem.AddDevice<Mouse>();
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath);
+            GameObject inactiveBootstrap = new("Inactive Bootstrap");
+            inactiveBootstrap.SetActive(false);
+            GameObject player = UnityEngine.Object.Instantiate(prefab, inactiveBootstrap.transform);
+
+            try
+            {
+                PlayerInput playerInput = player.GetComponent<PlayerInput>();
+
+                Assert.That(player.activeInHierarchy, Is.False);
+
+                inactiveBootstrap.SetActive(true);
+                yield return null;
+
+                Assert.That(playerInput.inputIsActive, Is.True);
+                Assert.That(playerInput.currentActionMap?.name, Is.EqualTo("Gameplay"));
+                Assert.That(playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"));
+                Assert.That(playerInput.devices, Does.Contain(keyboard));
+                Assert.That(playerInput.devices, Does.Contain(mouse));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(inactiveBootstrap);
             }
         }
     }

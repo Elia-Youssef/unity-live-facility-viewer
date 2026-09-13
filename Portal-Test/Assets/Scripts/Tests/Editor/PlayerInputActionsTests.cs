@@ -7,7 +7,7 @@ namespace FacilityViewer.Tests
 {
     public sealed class PlayerInputActionsTests
     {
-        private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
+        private const string InputActionsPath = "Assets/Settings/Input/PlayerControls.inputactions";
 
         [Test]
         public void GameplayMapDefinesExpectedDesktopBindings()
