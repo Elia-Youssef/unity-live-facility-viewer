@@ -21,6 +21,7 @@ namespace FacilityViewer.Player
         private bool hasFocus;
 
         public bool IsReady { get; private set; }
+        public PlayerInputRouter InputRouter => inputRouter;
         public PlayerInputMode ActiveInputMode => inputRouter.InputMode;
         public bool IsUiInputActive => inputRouter.InputOwner == PlayerInputOwner.UserInterface;
         public bool WantsLockedCursor =>

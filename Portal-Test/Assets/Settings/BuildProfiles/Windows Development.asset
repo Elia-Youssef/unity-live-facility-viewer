@@ -25,6 +25,15 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Bootstrap.unity
     m_guid: 381ccf9ec31ba1045b0e22d8bf69e9e8
+  - m_enabled: 1
+    m_path: Assets/Scenes/Lobby.unity
+    m_guid: e2c3c4a4be6a8e74490b8cad621dacb5
+  - m_enabled: 1
+    m_path: Assets/Scenes/OperationsFloor.unity
+    m_guid: 36f4c68ba0dbec042be1c6b0d2909e79
+  - m_enabled: 1
+    m_path: Assets/Scenes/PlantRoom.unity
+    m_guid: 0f8e4fbdc00e55a498c41ca6c97f6330
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
