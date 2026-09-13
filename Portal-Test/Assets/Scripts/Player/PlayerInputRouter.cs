@@ -26,6 +26,7 @@ namespace FacilityViewer.Player
         private const string SprintActionName = "Sprint";
         private const string InteractActionName = "Interact";
         private const string TogglePanelActionName = "TogglePanel";
+        private const string KeyboardAndMouseSchemeName = "Keyboard&Mouse";
 
         [SerializeField] private PlayerInput playerInput;
 
@@ -76,6 +77,11 @@ namespace FacilityViewer.Player
         {
             Unsubscribe();
             ClearContinuousInput();
+        }
+
+        private void Start()
+        {
+            EnsureDesktopInputIsReady();
         }
 
         private bool TryResolveActions()
@@ -195,12 +201,57 @@ namespace FacilityViewer.Player
         {
             if (InputMode == inputMode)
             {
+                EnsureDesktopInputIsReady();
                 return;
             }
 
             ClearContinuousInput();
             InputMode = inputMode;
             InputModeChanged?.Invoke(InputMode);
+            EnsureDesktopInputIsReady();
+        }
+
+        private void EnsureDesktopInputIsReady()
+        {
+            if (!isActiveAndEnabled || InputMode != PlayerInputMode.Desktop || playerInput == null)
+            {
+                return;
+            }
+
+            Keyboard keyboard = Keyboard.current;
+            Mouse mouse = Mouse.current;
+
+            if (keyboard == null || mouse == null)
+            {
+                Debug.LogWarning(
+                    "Desktop input is waiting for both a keyboard and mouse to become available.",
+                    this);
+                return;
+            }
+
+            bool hasKeyboard = false;
+            bool hasMouse = false;
+
+            foreach (InputDevice device in playerInput.devices)
+            {
+                hasKeyboard |= device == keyboard;
+                hasMouse |= device == mouse;
+            }
+
+            if (playerInput.currentControlScheme != KeyboardAndMouseSchemeName
+                || !hasKeyboard
+                || !hasMouse)
+            {
+                playerInput.SwitchCurrentControlScheme(KeyboardAndMouseSchemeName, keyboard, mouse);
+            }
+
+            if (playerInput.currentActionMap == null ||
+                playerInput.currentActionMap.name != GameplayMapName)
+            {
+                playerInput.SwitchCurrentActionMap(GameplayMapName);
+            }
+
+            playerInput.ActivateInput();
         }
 
         public void SetInputOwner(PlayerInputOwner inputOwner)

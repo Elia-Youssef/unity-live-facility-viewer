@@ -11,6 +11,7 @@ namespace FacilityViewer.Tests
     public sealed class PlayerPrefabTests
     {
         private const string PlayerPrefabPath = "Assets/Prefabs/Player/Player.prefab";
+        private const string PlayerControlsPath = "Assets/Settings/Input/PlayerControls.inputactions";
         private const string MovementTestScenePath = "Assets/Scenes/PlayerMovementTest.unity";
 
         [Test]
@@ -65,7 +66,10 @@ namespace FacilityViewer.Tests
             Assert.That(playerCamera.farClipPlane, Is.EqualTo(1000f));
             Assert.That(playerCamera.fieldOfView, Is.EqualTo(60f));
             Assert.That(playerInput.actions, Is.EqualTo(
-                AssetDatabase.LoadAssetAtPath<InputActionAsset>("Assets/InputSystem_Actions.inputactions")));
+                AssetDatabase.LoadAssetAtPath<InputActionAsset>(PlayerControlsPath)));
+            Assert.That(AssetDatabase.GetAssetPath(playerInput.actions), Is.EqualTo(PlayerControlsPath));
+            Assert.That(AssetDatabase.GetAssetPath(playerInput.actions), Is.Not.EqualTo(
+                "Assets/InputSystem_Actions.inputactions"));
             Assert.That(playerInput.defaultActionMap, Is.EqualTo("Gameplay"));
             Assert.That(playerInput.defaultControlScheme, Is.EqualTo("Keyboard&Mouse"));
             Assert.That(playerInput.notificationBehavior, Is.EqualTo(PlayerNotifications.InvokeCSharpEvents));
