@@ -1,10 +1,27 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/BootstrapShell.uss?fileID=7433441132597879392&amp;guid=7428543fddd099f47864cb7d32442916&amp;type=3#BootstrapShell" />
     <ui:VisualElement name="app-shell" class="app-shell">
+        <ui:VisualElement name="facility-panel" class="facility-panel">
+            <ui:Label text="FACILITY NAVIGATION" class="panel-eyebrow" />
+            <ui:Label name="current-level-label" text="CURRENT AREA  /  Starting..." class="current-level" />
+            <ui:VisualElement class="level-buttons">
+                <ui:Button name="level-lobby-button" text="LOBBY" class="level-button" />
+                <ui:Button name="level-operations-button" text="OPERATIONS FLOOR" class="level-button" />
+                <ui:Button name="level-plant-button" text="PLANT ROOM" class="level-button" />
+            </ui:VisualElement>
+            <ui:Label name="transition-status-label" text="Application services starting" class="transition-status" />
+            <ui:Label text="TAB closes this panel" class="panel-hint" />
+        </ui:VisualElement>
         <ui:VisualElement name="status-card" class="status-card">
             <ui:Label text="FACILITY SYSTEM" class="eyebrow" />
             <ui:Label name="title-label" text="Live Facility Viewer" class="title" />
             <ui:Label name="status-label" text="Checking project foundation..." class="status" />
+        </ui:VisualElement>
+        <ui:VisualElement name="loading-overlay" class="loading-overlay">
+            <ui:VisualElement class="loading-card">
+                <ui:Label text="FACILITY TRANSITION" class="panel-eyebrow" />
+                <ui:Label name="loading-status-label" text="Loading facility..." class="loading-status" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

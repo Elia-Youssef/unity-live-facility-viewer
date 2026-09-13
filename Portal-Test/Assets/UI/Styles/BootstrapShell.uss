@@ -35,3 +35,107 @@
     color: rgb(178, 197, 207);
     font-size: 15px;
 }
+
+.facility-panel {
+    display: none;
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    width: 330px;
+    padding: 22px;
+    background-color: rgba(11, 23, 32, 0.97);
+    border-top-width: 3px;
+    border-top-color: rgb(26, 184, 214);
+}
+
+.facility-panel--open {
+    display: flex;
+}
+
+.panel-eyebrow {
+    color: rgb(91, 211, 230);
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.current-level {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    color: rgb(240, 247, 250);
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.level-buttons {
+    flex-direction: column;
+}
+
+.level-button {
+    height: 42px;
+    margin-bottom: 8px;
+    color: rgb(231, 241, 245);
+    background-color: rgb(28, 52, 65);
+    border-width: 1px;
+    border-color: rgb(53, 91, 108);
+    -unity-font-style: bold;
+}
+
+.level-button:hover {
+    background-color: rgb(35, 79, 96);
+    border-color: rgb(91, 211, 230);
+}
+
+.level-button:focus {
+    border-width: 2px;
+    border-color: rgb(240, 247, 250);
+}
+
+.level-button:disabled {
+    color: rgb(104, 127, 138);
+    background-color: rgb(20, 34, 42);
+    border-color: rgb(35, 52, 61);
+}
+
+.transition-status {
+    margin-top: 10px;
+    color: rgb(178, 197, 207);
+    font-size: 13px;
+}
+
+.panel-hint {
+    margin-top: 14px;
+    color: rgb(100, 132, 146);
+    font-size: 11px;
+}
+
+.loading-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(3, 8, 12, 0.78);
+}
+
+.loading-overlay.is-visible {
+    display: flex;
+}
+
+.loading-card {
+    min-width: 360px;
+    padding: 26px 30px;
+    background-color: rgb(13, 29, 39);
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(26, 184, 214);
+}
+
+.loading-status {
+    margin-top: 10px;
+    color: rgb(240, 247, 250);
+    font-size: 20px;
+    -unity-font-style: bold;
+}

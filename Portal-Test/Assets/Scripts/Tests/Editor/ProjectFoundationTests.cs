@@ -52,6 +52,79 @@ namespace FacilityViewer.Tests
         }
 
         [Test]
+        public void BootstrapSceneOwnsOneExplicitPersistentComposition()
+        {
+            SceneSetup[] previousSetup = EditorSceneManager.GetSceneManagerSetup();
+            bool canRestorePreviousSetup = previousSetup.Any(scene => scene.isLoaded);
+
+            try
+            {
+                EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
+                GameObject[] roots = UnityEngine.SceneManagement.SceneManager
+                    .GetActiveScene()
+                    .GetRootGameObjects();
+
+                Assert.That(roots, Has.Length.EqualTo(1));
+                Assert.That(roots[0].name, Is.EqualTo("Bootstrap"));
+
+                Transform applicationUi = roots[0].transform.Find("Application UI");
+                Transform player = roots[0].transform.Find("Player");
+
+                Assert.That(applicationUi, Is.Not.Null);
+                Assert.That(player, Is.Not.Null);
+                Assert.That(player.gameObject.activeSelf, Is.False);
+                Assert.That(PrefabUtility.GetCorrespondingObjectFromSource(player.gameObject), Is.Not.Null);
+
+                MonoBehaviour[] rootComponents = roots[0].GetComponents<MonoBehaviour>();
+                MonoBehaviour appState = rootComponents.Single(component =>
+                    component.GetType().FullName == "FacilityViewer.Core.AppState");
+                MonoBehaviour teleportService = rootComponents.Single(component =>
+                    component.GetType().FullName == "FacilityViewer.Services.LevelTeleportService");
+                MonoBehaviour appBootstrapper = rootComponents.Single(component =>
+                    component.GetType().FullName == "FacilityViewer.Core.AppBootstrapper");
+
+                Assert.That(appState, Is.Not.Null);
+                Assert.That(teleportService, Is.Not.Null);
+                Assert.That(appBootstrapper, Is.Not.Null);
+                Assert.That(applicationUi.GetComponent<UIDocument>(), Is.Not.Null);
+                Assert.That(player.GetComponent<CharacterController>(), Is.Not.Null);
+                Assert.That(player.GetComponentInChildren<Camera>(true), Is.Not.Null);
+                Assert.That(roots[0].GetComponentsInChildren<Camera>(true), Has.Length.EqualTo(1));
+                Assert.That(roots[0].GetComponentsInChildren<AudioListener>(true), Has.Length.EqualTo(1));
+                Assert.That(roots[0].GetComponentsInChildren<Light>(true), Is.Empty);
+
+                SerializedObject serializedBootstrapper = new(appBootstrapper);
+                SerializedObject serializedTeleportService = new(teleportService);
+
+                Assert.That(
+                    serializedBootstrapper.FindProperty("appState").objectReferenceValue,
+                    Is.EqualTo(appState));
+                Assert.That(
+                    serializedBootstrapper.FindProperty("levelTeleportService").objectReferenceValue,
+                    Is.EqualTo(teleportService));
+                Assert.That(
+                    serializedBootstrapper.FindProperty("applicationUi").objectReferenceValue,
+                    Is.EqualTo(applicationUi.GetComponent<UIDocument>()));
+                Assert.That(
+                    serializedTeleportService.FindProperty("appState").objectReferenceValue,
+                    Is.EqualTo(appState));
+                Assert.That(
+                    serializedTeleportService.FindProperty("playerRoot").objectReferenceValue,
+                    Is.EqualTo(player.gameObject));
+                Assert.That(
+                    serializedTeleportService.FindProperty("characterController").objectReferenceValue,
+                    Is.EqualTo(player.GetComponent<CharacterController>()));
+            }
+            finally
+            {
+                if (canRestorePreviousSetup)
+                {
+                    EditorSceneManager.RestoreSceneManagerSetup(previousSetup);
+                }
+            }
+        }
+
+        [Test]
         public void BootstrapVisualTreeContainsRequiredLabels()
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
