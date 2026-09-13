@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using FacilityViewer.Core;
 using FacilityViewer.Player;
@@ -21,12 +23,15 @@ namespace FacilityViewer.Services
         private Coroutine transitionRoutine;
         private Scene activeFacilityScene;
         private int requestSequence;
+        private Func<Scene, AsyncOperation> unloadSceneOperation = SceneManager.UnloadSceneAsync;
 
         public bool IsReady { get; private set; }
         public AppState State => appState;
         public GameObject PlayerRoot => playerRoot;
         public CharacterController CharacterController => characterController;
         public LevelDefinition InitialLevel => initialLevel;
+        public IReadOnlyList<LevelDefinition> OrderedLevelCatalog =>
+            System.Array.AsReadOnly(availableLevels ?? System.Array.Empty<LevelDefinition>());
         public bool IsTransitionActive => transitionRoutine != null;
 
         private void Reset()
@@ -94,6 +99,12 @@ namespace FacilityViewer.Services
 
         public bool RequestTransition(LevelDefinition destination)
         {
+            string spawnId = destination != null ? destination.SpawnPointId : string.Empty;
+            return RequestTransition(destination, spawnId);
+        }
+
+        public bool RequestTransition(LevelDefinition destination, string spawnPointId)
+        {
             if (!IsReady)
             {
                 appState?.SetFailure("Facility transition service is not ready");
@@ -107,16 +118,32 @@ namespace FacilityViewer.Services
                 return false;
             }
 
-            transitionRoutine = StartCoroutine(TransitionTo(destination, ++requestSequence));
+            string normalizedSpawnId = spawnPointId?.Trim() ?? string.Empty;
+
+            if (destination != null && string.IsNullOrWhiteSpace(normalizedSpawnId))
+            {
+                string message = $"No destination spawn ID was provided for {destination.DisplayName}.";
+                appState.SetFailure(message);
+                Debug.LogError($"[Transition] {message}", this);
+                return false;
+            }
+
+            transitionRoutine = StartCoroutine(TransitionTo(
+                destination,
+                normalizedSpawnId,
+                ++requestSequence));
             return true;
         }
 
-        private IEnumerator TransitionTo(LevelDefinition destination, int requestId)
+        private IEnumerator TransitionTo(
+            LevelDefinition destination,
+            string requestedSpawnId,
+            int requestId)
         {
             float startedAt = Time.realtimeSinceStartup;
             string oldSceneName = activeFacilityScene.IsValid() ? activeFacilityScene.name : "None";
             string destinationName = destination != null ? destination.DisplayName : "Missing";
-            string spawnId = destination != null ? destination.SpawnPointId : "Missing";
+            string spawnId = destination != null ? requestedSpawnId : "Missing";
 
             SetPhase(
                 FacilityTransitionPhase.Validating,
@@ -174,25 +201,6 @@ namespace FacilityViewer.Services
 
             Scene destinationScene = SceneManager.GetSceneByPath(destination.ScenePath);
 
-            if (destinationScene.IsValid()
-                && destinationScene.isLoaded
-                && appState.CurrentLevelId == destination.LevelId)
-            {
-                appState.SetTransitionPhase(
-                    FacilityTransitionPhase.Complete,
-                    $"Already in {destination.DisplayName}");
-                LogPhase(
-                    requestId,
-                    oldSceneName,
-                    destinationName,
-                    spawnId,
-                    FacilityTransitionPhase.Complete,
-                    startedAt,
-                    "already-current");
-                transitionRoutine = null;
-                yield break;
-            }
-
             bool loadedByRequest = !destinationScene.IsValid() || !destinationScene.isLoaded;
 
             if (loadedByRequest)
@@ -246,7 +254,7 @@ namespace FacilityViewer.Services
                 yield break;
             }
 
-            if (!TryFindSpawnPoint(destinationScene, destination.SpawnPointId, out SpawnPoint spawnPoint, out string spawnError))
+            if (!TryFindSpawnPoint(destinationScene, spawnId, out SpawnPoint spawnPoint, out string spawnError))
             {
                 yield return FailTransition(
                     spawnError,
@@ -269,6 +277,8 @@ namespace FacilityViewer.Services
                 spawnId,
                 startedAt);
 
+            Vector3 previousPlayerPosition = playerRoot.transform.position;
+            Quaternion previousPlayerRotation = playerRoot.transform.rotation;
             TeleportPlayer(spawnPoint.transform);
             SceneManager.SetActiveScene(destinationScene);
 
@@ -285,14 +295,29 @@ namespace FacilityViewer.Services
                     spawnId,
                     startedAt);
 
-                AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(activeFacilityScene);
+                AsyncOperation unloadOperation = BeginSceneUnload(activeFacilityScene);
 
-                if (unloadOperation != null)
+                if (unloadOperation == null)
                 {
-                    while (!unloadOperation.isDone)
-                    {
-                        yield return null;
-                    }
+                    // Keep the service, app state, and player with the existing facility before
+                    // rolling back the destination loaded for this request.
+                    SceneManager.SetActiveScene(activeFacilityScene);
+                    TeleportPlayer(previousPlayerPosition, previousPlayerRotation);
+                    yield return FailTransition(
+                        $"Unity could not start unloading the previous facility: {oldSceneName}.",
+                        destinationScene,
+                        loadedByRequest,
+                        requestId,
+                        oldSceneName,
+                        destinationName,
+                        spawnId,
+                        startedAt);
+                    yield break;
+                }
+
+                while (!unloadOperation.isDone)
+                {
+                    yield return null;
                 }
             }
 
@@ -324,7 +349,7 @@ namespace FacilityViewer.Services
         {
             if (unloadScene && sceneToCleanUp.IsValid() && sceneToCleanUp.isLoaded)
             {
-                AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(sceneToCleanUp);
+                AsyncOperation unloadOperation = BeginSceneUnload(sceneToCleanUp);
 
                 if (unloadOperation != null)
                 {
@@ -342,18 +367,30 @@ namespace FacilityViewer.Services
 
         private void TeleportPlayer(Transform destination)
         {
+            TeleportPlayer(destination.position, destination.rotation);
+        }
+
+        private void TeleportPlayer(Vector3 position, Quaternion rotation)
+        {
             PlayerInputRouter inputRouter = playerRoot.GetComponent<PlayerInputRouter>();
             inputRouter?.ClearContinuousInput();
 
             bool controllerWasEnabled = characterController.enabled;
             characterController.enabled = false;
-            playerRoot.transform.SetPositionAndRotation(destination.position, destination.rotation);
+            playerRoot.transform.SetPositionAndRotation(position, rotation);
             characterController.enabled = controllerWasEnabled;
 
             if (!playerRoot.activeSelf)
             {
                 playerRoot.SetActive(true);
             }
+        }
+
+        private AsyncOperation BeginSceneUnload(Scene scene)
+        {
+            return unloadSceneOperation != null
+                ? unloadSceneOperation(scene)
+                : SceneManager.UnloadSceneAsync(scene);
         }
 
         private LevelDefinition FindLevel(string levelId)

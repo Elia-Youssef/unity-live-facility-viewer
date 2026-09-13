@@ -1,0 +1,55 @@
+.app-shell--wide .facility-panel {
+    width: 472px;
+}
+
+.app-shell--wide .facility-section__controls {
+    flex-direction: row;
+}
+
+.app-shell--wide .state-button--last {
+    margin-right: 0;
+}
+
+.app-shell--compact .facility-panel {
+    left: 0;
+    right: 0;
+    bottom: 136px;
+    width: auto;
+    max-width: none;
+    padding: 16px;
+    border-left-width: 0;
+}
+
+.app-shell--compact .facility-panel__header {
+    flex-direction: column;
+}
+
+.app-shell--compact .facility-panel__identity {
+    margin-right: 0;
+    margin-bottom: 12px;
+}
+
+.app-shell--compact .panel-close-button {
+    align-self: flex-end;
+}
+
+.app-shell--compact .facility-section__controls {
+    flex-direction: column;
+}
+
+.app-shell--compact .state-button {
+    min-width: 0;
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+.app-shell--compact .state-button--last {
+    margin-bottom: 0;
+}
+
+.app-shell--compact .status-card {
+    min-width: 0;
+    margin-left: 16px;
+    margin-bottom: 16px;
+    margin-right: 16px;
+}

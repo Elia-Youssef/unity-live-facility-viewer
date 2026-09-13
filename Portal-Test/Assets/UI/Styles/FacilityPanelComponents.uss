@@ -1,0 +1,256 @@
+.facility-panel {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 136px;
+    width: 472px;
+    max-width: 100%;
+    padding: 20px;
+    background-color: rgba(8, 18, 31, 0.96);
+    border-left-width: 1px;
+    border-left-color: rgba(114, 220, 255, 0.52);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(114, 220, 255, 0.28);
+    overflow: scroll;
+}
+
+.facility-panel--open {
+    display: flex;
+}
+
+.facility-panel__header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(114, 220, 255, 0.28);
+}
+
+.facility-panel__identity {
+    flex-grow: 1;
+    margin-right: 12px;
+}
+
+.panel-title {
+    color: rgb(237, 250, 255);
+    font-size: 25px;
+    -unity-font-style: bold;
+}
+
+.current-level,
+.system-status__summary,
+.transition-phase,
+.transition-status,
+.panel-hint {
+    color: rgb(180, 211, 226);
+    font-size: 13px;
+    white-space: normal;
+}
+
+.current-level {
+    margin-top: 6px;
+    color: rgb(114, 220, 255);
+    -unity-font-style: bold;
+}
+
+.panel-close-button,
+.level-button,
+.state-button {
+    min-height: 72px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(114, 220, 255, 0.45);
+    border-right-color: rgba(114, 220, 255, 0.45);
+    border-top-color: rgba(114, 220, 255, 0.45);
+    border-bottom-color: rgba(114, 220, 255, 0.45);
+    background-color: rgb(19, 48, 68);
+    color: rgb(239, 250, 255);
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+.panel-close-button {
+    min-width: 96px;
+}
+
+.level-button {
+    margin-bottom: 8px;
+    justify-content: center;
+}
+
+.state-button {
+    flex-grow: 1;
+    min-width: 120px;
+    margin-right: 8px;
+}
+
+.facility-section {
+    margin-bottom: 12px;
+    padding: 14px;
+    background-color: rgba(18, 43, 61, 0.58);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-left-width: 1px;
+    border-left-color: rgba(114, 220, 255, 0.16);
+}
+
+.facility-section__heading,
+.panel-eyebrow {
+    color: rgb(114, 220, 255);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 0.6px;
+}
+
+.facility-section__content {
+    margin-top: 10px;
+}
+
+.system-status {
+    padding-bottom: 2px;
+}
+
+.transition-status {
+    margin-top: 8px;
+}
+
+.transition-phase {
+    margin-top: 8px;
+    color: rgb(114, 220, 255);
+    -unity-font-style: bold;
+}
+
+.app-shell--state-idle .transition-phase,
+.app-shell--state-success .transition-phase {
+    color: rgb(122, 232, 174);
+}
+
+.app-shell--state-loading .transition-phase {
+    color: rgb(255, 210, 110);
+}
+
+.app-shell--state-error .transition-phase,
+.app-shell--state-error .transition-status {
+    color: rgb(255, 146, 146);
+}
+
+.app-shell--state-error .facility-section--status {
+    border-left-color: rgb(255, 105, 105);
+}
+
+.panel-hint {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    color: rgb(143, 174, 191);
+}
+
+.panel-close-button:hover,
+.level-button:hover,
+.state-button:hover {
+    background-color: rgb(31, 81, 108);
+    border-left-color: rgb(154, 234, 255);
+    border-right-color: rgb(154, 234, 255);
+    border-top-color: rgb(154, 234, 255);
+    border-bottom-color: rgb(154, 234, 255);
+}
+
+.panel-close-button:focus,
+.level-button:focus,
+.state-button:focus {
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(255, 210, 110);
+    border-right-color: rgb(255, 210, 110);
+    border-top-color: rgb(255, 210, 110);
+    border-bottom-color: rgb(255, 210, 110);
+}
+
+.panel-close-button:active,
+.level-button:active,
+.level-button.is-selected,
+.state-button:active,
+.state-button.is-selected {
+    background-color: rgb(10, 113, 142);
+    color: white;
+}
+
+.panel-close-button:disabled,
+.level-button:disabled,
+.state-button:disabled {
+    background-color: rgb(34, 44, 52);
+    color: rgb(133, 149, 158);
+    border-left-color: rgb(83, 100, 109);
+    border-right-color: rgb(83, 100, 109);
+    border-top-color: rgb(83, 100, 109);
+    border-bottom-color: rgb(83, 100, 109);
+}
+
+.level-button.is-selected:disabled {
+    background-color: rgb(10, 113, 142);
+    color: white;
+    border-left-color: rgb(154, 234, 255);
+    border-right-color: rgb(154, 234, 255);
+    border-top-color: rgb(154, 234, 255);
+    border-bottom-color: rgb(154, 234, 255);
+}
+
+.status-card {
+    min-width: 300px;
+    margin-left: 24px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: rgba(8, 18, 31, 0.9);
+    border-left-width: 3px;
+    border-left-color: rgb(114, 220, 255);
+}
+
+.loading-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(2, 10, 18, 0.74);
+}
+
+.loading-overlay.is-visible {
+    display: flex;
+}
+
+.loading-card {
+    width: 360px;
+    max-width: 86%;
+    padding: 24px;
+    background-color: rgb(8, 27, 43);
+    border-left-width: 2px;
+    border-left-color: rgb(114, 220, 255);
+    border-top-width: 1px;
+    border-top-color: rgba(114, 220, 255, 0.5);
+    border-right-width: 1px;
+    border-right-color: rgba(114, 220, 255, 0.5);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(114, 220, 255, 0.5);
+}
+
+.loading-status {
+    margin-top: 10px;
+    color: rgb(240, 247, 250);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
