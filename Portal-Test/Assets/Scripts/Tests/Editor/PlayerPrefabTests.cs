@@ -28,6 +28,7 @@ namespace FacilityViewer.Tests
             PlayerInput playerInput = player.GetComponent<PlayerInput>();
             Component playerController = player.GetComponent("PlayerController");
             Component inputRouter = player.GetComponent("PlayerInputRouter");
+            Component inputCoordinator = player.GetComponent("PlayerInputCoordinator");
             Transform cameraPivot = player.transform.Find("CameraPivot");
             Transform cameraTransform = cameraPivot?.Find("PlayerCamera");
             Camera playerCamera = cameraTransform?.GetComponent<Camera>();
@@ -42,6 +43,9 @@ namespace FacilityViewer.Tests
                 Is.EqualTo(1));
             Assert.That(
                 player.GetComponents<Component>().Count(component => component.GetType().Name == "PlayerInputRouter"),
+                Is.EqualTo(1));
+            Assert.That(
+                player.GetComponents<Component>().Count(component => component.GetType().Name == "PlayerInputCoordinator"),
                 Is.EqualTo(1));
             Assert.That(cameraPivot, Is.Not.Null);
             Assert.That(cameraTransform, Is.Not.Null);
@@ -76,6 +80,16 @@ namespace FacilityViewer.Tests
             Assert.That(inputRouter.GetType().GetProperty("IsSprinting")?.PropertyType, Is.EqualTo(typeof(bool)));
             Assert.That(inputRouter.GetType().GetEvent("InteractRequested"), Is.Not.Null);
             Assert.That(inputRouter.GetType().GetEvent("TogglePanelRequested"), Is.Not.Null);
+
+            SerializedObject serializedCoordinator = new(inputCoordinator);
+
+            Assert.That(
+                serializedCoordinator.FindProperty("inputRouter").objectReferenceValue,
+                Is.EqualTo(inputRouter));
+            Assert.That(
+                serializedCoordinator.FindProperty("inputModeOverride").enumDisplayNames[
+                    serializedCoordinator.FindProperty("inputModeOverride").enumValueIndex],
+                Is.EqualTo("Automatic"));
 
             SerializedObject serializedController = new(playerController);
 
@@ -129,6 +143,13 @@ namespace FacilityViewer.Tests
                 Assert.That(PrefabUtility.GetCorrespondingObjectFromSource(player),
                     Is.EqualTo(AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath)));
                 Assert.That(player.transform.position, Is.EqualTo(new Vector3(0f, 0f, -6f)));
+                Component coordinator = player.GetComponent("PlayerInputCoordinator");
+                SerializedObject serializedCoordinator = new(coordinator);
+                SerializedProperty inputModeOverride = serializedCoordinator.FindProperty("inputModeOverride");
+
+                Assert.That(
+                    inputModeOverride.enumDisplayNames[inputModeOverride.enumValueIndex],
+                    Is.EqualTo("Mobile"));
                 Assert.That(course.transform.Cast<Transform>().Select(child => child.name),
                     Is.SupersetOf(requiredCourseObjects));
                 Assert.That(course.transform.Find("Floor").GetComponent<Collider>().enabled, Is.True);

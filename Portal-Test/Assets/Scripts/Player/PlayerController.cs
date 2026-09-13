@@ -98,7 +98,7 @@ namespace FacilityViewer.Player
 
         private void UpdateLook()
         {
-            Vector2 lookDelta = inputRouter.LookInput * playerSettings.LookSensitivity;
+            Vector2 lookDelta = inputRouter.ConsumeLookInput() * playerSettings.LookSensitivity;
 
             transform.Rotate(0f, lookDelta.x, 0f, Space.Self);
             pitch = Mathf.Clamp(

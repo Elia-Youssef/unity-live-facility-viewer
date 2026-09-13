@@ -1,0 +1,186 @@
+.mobile-controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.mobile-safe-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.control-caption {
+    color: rgba(188, 225, 234, 0.8);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+}
+
+.look-region {
+    position: absolute;
+    left: 44%;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(7, 18, 26, 0.04);
+    border-left-width: 1px;
+    border-left-color: rgba(91, 211, 230, 0.12);
+}
+
+.look-region.is-active {
+    background-color: rgba(26, 184, 214, 0.08);
+    border-left-color: rgba(91, 211, 230, 0.34);
+}
+
+.look-region__caption {
+    position: absolute;
+    right: 30px;
+    bottom: 136px;
+}
+
+.move-cluster {
+    position: absolute;
+    left: 28px;
+    bottom: 24px;
+    width: 196px;
+    height: 218px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.move-cluster__caption {
+    margin-bottom: 8px;
+}
+
+.move-stick {
+    position: relative;
+    width: 176px;
+    height: 176px;
+    background-color: rgba(10, 25, 34, 0.62);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(91, 211, 230, 0.55);
+    border-right-color: rgba(91, 211, 230, 0.55);
+    border-top-color: rgba(91, 211, 230, 0.55);
+    border-bottom-color: rgba(91, 211, 230, 0.55);
+    border-top-left-radius: 88px;
+    border-top-right-radius: 88px;
+    border-bottom-left-radius: 88px;
+    border-bottom-right-radius: 88px;
+}
+
+.move-stick.is-active {
+    background-color: rgba(12, 38, 49, 0.78);
+    border-left-color: rgb(91, 211, 230);
+    border-right-color: rgb(91, 211, 230);
+    border-top-color: rgb(91, 211, 230);
+    border-bottom-color: rgb(91, 211, 230);
+}
+
+.move-stick__axis {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background-color: rgba(91, 211, 230, 0.18);
+}
+
+.move-stick__axis--horizontal {
+    width: 108px;
+    height: 1px;
+    margin-left: -54px;
+}
+
+.move-stick__axis--vertical {
+    width: 1px;
+    height: 108px;
+    margin-top: -54px;
+}
+
+.move-stick__knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    background-color: rgba(91, 211, 230, 0.92);
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
+}
+
+.action-cluster {
+    position: absolute;
+    right: 28px;
+    bottom: 24px;
+    height: 104px;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.touch-button {
+    min-width: 88px;
+    min-height: 64px;
+    padding-left: 18px;
+    padding-right: 18px;
+    color: rgb(233, 247, 250);
+    background-color: rgba(12, 30, 40, 0.86);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(91, 211, 230, 0.62);
+    border-right-color: rgba(91, 211, 230, 0.62);
+    border-top-color: rgba(91, 211, 230, 0.62);
+    border-bottom-color: rgba(91, 211, 230, 0.62);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+.touch-button--secondary {
+    margin-right: 14px;
+}
+
+.touch-button--primary {
+    min-width: 112px;
+    min-height: 88px;
+    background-color: rgba(18, 91, 108, 0.92);
+    border-left-color: rgb(91, 211, 230);
+    border-right-color: rgb(91, 211, 230);
+    border-top-color: rgb(91, 211, 230);
+    border-bottom-color: rgb(91, 211, 230);
+}
+
+.touch-button:hover,
+.touch-button:focus {
+    background-color: rgba(24, 112, 131, 0.96);
+    border-left-color: rgb(157, 237, 249);
+    border-right-color: rgb(157, 237, 249);
+    border-top-color: rgb(157, 237, 249);
+    border-bottom-color: rgb(157, 237, 249);
+}
+
+.touch-button:active {
+    background-color: rgb(26, 184, 214);
+    color: rgb(5, 18, 24);
+}
+
+.touch-button:disabled {
+    opacity: 0.4;
+}

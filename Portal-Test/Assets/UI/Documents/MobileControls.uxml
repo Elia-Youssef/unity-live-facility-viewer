@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/MobileControls.uss" />
+    <ui:VisualElement name="mobile-controls-root" class="mobile-controls" picking-mode="Ignore">
+        <ui:VisualElement name="mobile-safe-area" class="mobile-safe-area" picking-mode="Ignore">
+            <ui:VisualElement name="look-region" class="look-region">
+                <ui:Label text="LOOK" class="control-caption look-region__caption" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="move-cluster" class="move-cluster" picking-mode="Ignore">
+                <ui:Label text="MOVE" class="control-caption move-cluster__caption" picking-mode="Ignore" />
+                <ui:VisualElement name="move-stick" class="move-stick">
+                    <ui:VisualElement class="move-stick__axis move-stick__axis--horizontal" picking-mode="Ignore" />
+                    <ui:VisualElement class="move-stick__axis move-stick__axis--vertical" picking-mode="Ignore" />
+                    <ui:VisualElement name="move-knob" class="move-stick__knob" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="action-cluster" class="action-cluster" picking-mode="Ignore">
+                <ui:Button name="panel-button" text="PANEL" class="touch-button touch-button--secondary" />
+                <ui:Button name="interact-button" text="USE" class="touch-button touch-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

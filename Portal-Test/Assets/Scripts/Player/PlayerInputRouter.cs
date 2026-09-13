@@ -4,6 +4,18 @@ using UnityEngine.InputSystem;
 
 namespace FacilityViewer.Player
 {
+    public enum PlayerInputMode
+    {
+        Desktop,
+        Mobile
+    }
+
+    public enum PlayerInputOwner
+    {
+        Gameplay,
+        UserInterface
+    }
+
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerInput))]
     public sealed class PlayerInputRouter : MonoBehaviour
@@ -17,19 +29,30 @@ namespace FacilityViewer.Player
 
         [SerializeField] private PlayerInput playerInput;
 
-        private InputAction moveAction;
-        private InputAction lookAction;
-        private InputAction sprintAction;
-        private InputAction interactAction;
-        private InputAction togglePanelAction;
         private bool isSubscribed;
+        private Vector2 desktopMoveInput;
+        private Vector2 desktopLookInput;
+        private bool desktopSprintInput;
+        private Vector2 mobileMoveInput;
+        private Vector2 mobileLookDelta;
 
-        public Vector2 MoveInput { get; private set; }
-        public Vector2 LookInput { get; private set; }
-        public bool IsSprinting { get; private set; }
+        public PlayerInputMode InputMode { get; private set; } = PlayerInputMode.Desktop;
+        public PlayerInputOwner InputOwner { get; private set; } = PlayerInputOwner.Gameplay;
+        public bool IsGameplayInputActive => InputOwner == PlayerInputOwner.Gameplay;
+        public Vector2 MoveInput => GetMoveInput();
+        public Vector2 LookInput => GetLookInput();
+        public bool IsSprinting => IsDesktopGameplayActive && desktopSprintInput;
 
         public event Action InteractRequested;
         public event Action TogglePanelRequested;
+        public event Action<PlayerInputMode> InputModeChanged;
+        public event Action<PlayerInputOwner> InputOwnerChanged;
+
+        private bool IsDesktopGameplayActive =>
+            InputMode == PlayerInputMode.Desktop && InputOwner == PlayerInputOwner.Gameplay;
+
+        private bool IsMobileGameplayActive =>
+            InputMode == PlayerInputMode.Mobile && InputOwner == PlayerInputOwner.Gameplay;
 
         private void Reset()
         {
@@ -52,7 +75,7 @@ namespace FacilityViewer.Player
         private void OnDisable()
         {
             Unsubscribe();
-            ClearState();
+            ClearContinuousInput();
         }
 
         private bool TryResolveActions()
@@ -71,17 +94,11 @@ namespace FacilityViewer.Player
                 return false;
             }
 
-            moveAction = gameplayMap.FindAction(MoveActionName, false);
-            lookAction = gameplayMap.FindAction(LookActionName, false);
-            sprintAction = gameplayMap.FindAction(SprintActionName, false);
-            interactAction = gameplayMap.FindAction(InteractActionName, false);
-            togglePanelAction = gameplayMap.FindAction(TogglePanelActionName, false);
-
-            if (moveAction != null
-                && lookAction != null
-                && sprintAction != null
-                && interactAction != null
-                && togglePanelAction != null)
+            if (gameplayMap.FindAction(MoveActionName, false) != null
+                && gameplayMap.FindAction(LookActionName, false) != null
+                && gameplayMap.FindAction(SprintActionName, false) != null
+                && gameplayMap.FindAction(InteractActionName, false) != null
+                && gameplayMap.FindAction(TogglePanelActionName, false) != null)
             {
                 return true;
             }
@@ -97,14 +114,7 @@ namespace FacilityViewer.Player
                 return;
             }
 
-            moveAction.performed += OnMoveChanged;
-            moveAction.canceled += OnMoveChanged;
-            lookAction.performed += OnLookChanged;
-            lookAction.canceled += OnLookChanged;
-            sprintAction.performed += OnSprintChanged;
-            sprintAction.canceled += OnSprintChanged;
-            interactAction.performed += OnInteractPerformed;
-            togglePanelAction.performed += OnTogglePanelPerformed;
+            playerInput.onActionTriggered += OnActionTriggered;
             isSubscribed = true;
         }
 
@@ -115,47 +125,171 @@ namespace FacilityViewer.Player
                 return;
             }
 
-            moveAction.performed -= OnMoveChanged;
-            moveAction.canceled -= OnMoveChanged;
-            lookAction.performed -= OnLookChanged;
-            lookAction.canceled -= OnLookChanged;
-            sprintAction.performed -= OnSprintChanged;
-            sprintAction.canceled -= OnSprintChanged;
-            interactAction.performed -= OnInteractPerformed;
-            togglePanelAction.performed -= OnTogglePanelPerformed;
+            playerInput.onActionTriggered -= OnActionTriggered;
             isSubscribed = false;
+        }
+
+        private void OnActionTriggered(InputAction.CallbackContext context)
+        {
+            if (context.action.actionMap.name != GameplayMapName)
+            {
+                return;
+            }
+
+            switch (context.action.name)
+            {
+                case MoveActionName when context.performed || context.canceled:
+                    OnMoveChanged(context);
+                    break;
+                case LookActionName when context.performed || context.canceled:
+                    OnLookChanged(context);
+                    break;
+                case SprintActionName when context.performed || context.canceled:
+                    OnSprintChanged(context);
+                    break;
+                case InteractActionName when context.performed:
+                    OnInteractPerformed(context);
+                    break;
+                case TogglePanelActionName when context.performed:
+                    OnTogglePanelPerformed(context);
+                    break;
+            }
         }
 
         private void OnMoveChanged(InputAction.CallbackContext context)
         {
-            MoveInput = context.canceled ? Vector2.zero : context.ReadValue<Vector2>();
+            desktopMoveInput = context.canceled || !IsDesktopGameplayActive
+                ? Vector2.zero
+                : context.ReadValue<Vector2>();
         }
 
         private void OnLookChanged(InputAction.CallbackContext context)
         {
-            LookInput = context.canceled ? Vector2.zero : context.ReadValue<Vector2>();
+            desktopLookInput = context.canceled || !IsDesktopGameplayActive
+                ? Vector2.zero
+                : context.ReadValue<Vector2>();
         }
 
         private void OnSprintChanged(InputAction.CallbackContext context)
         {
-            IsSprinting = !context.canceled;
+            desktopSprintInput = !context.canceled && IsDesktopGameplayActive;
         }
 
         private void OnInteractPerformed(InputAction.CallbackContext context)
         {
-            InteractRequested?.Invoke();
+            if (IsDesktopGameplayActive)
+            {
+                InteractRequested?.Invoke();
+            }
         }
 
         private void OnTogglePanelPerformed(InputAction.CallbackContext context)
         {
-            TogglePanelRequested?.Invoke();
+            if (InputMode == PlayerInputMode.Desktop)
+            {
+                TogglePanelRequested?.Invoke();
+            }
         }
 
-        private void ClearState()
+        public void SetInputMode(PlayerInputMode inputMode)
         {
-            MoveInput = Vector2.zero;
-            LookInput = Vector2.zero;
-            IsSprinting = false;
+            if (InputMode == inputMode)
+            {
+                return;
+            }
+
+            ClearContinuousInput();
+            InputMode = inputMode;
+            InputModeChanged?.Invoke(InputMode);
+        }
+
+        public void SetInputOwner(PlayerInputOwner inputOwner)
+        {
+            if (InputOwner == inputOwner)
+            {
+                return;
+            }
+
+            ClearContinuousInput();
+            InputOwner = inputOwner;
+            InputOwnerChanged?.Invoke(InputOwner);
+        }
+
+        public void SetMobileMoveInput(Vector2 value)
+        {
+            mobileMoveInput = IsMobileGameplayActive
+                ? Vector2.ClampMagnitude(value, 1f)
+                : Vector2.zero;
+        }
+
+        public void AddMobileLookDelta(Vector2 delta)
+        {
+            if (IsMobileGameplayActive)
+            {
+                mobileLookDelta += delta;
+            }
+        }
+
+        public Vector2 ConsumeLookInput()
+        {
+            Vector2 value = LookInput;
+            mobileLookDelta = Vector2.zero;
+            return value;
+        }
+
+        public void RequestMobileInteract()
+        {
+            if (IsMobileGameplayActive)
+            {
+                InteractRequested?.Invoke();
+            }
+        }
+
+        public void RequestMobileTogglePanel()
+        {
+            if (InputMode == PlayerInputMode.Mobile)
+            {
+                TogglePanelRequested?.Invoke();
+            }
+        }
+
+        public void ClearMobileInput()
+        {
+            mobileMoveInput = Vector2.zero;
+            mobileLookDelta = Vector2.zero;
+        }
+
+        public void ClearContinuousInput()
+        {
+            desktopMoveInput = Vector2.zero;
+            desktopLookInput = Vector2.zero;
+            desktopSprintInput = false;
+            ClearMobileInput();
+        }
+
+        private Vector2 GetMoveInput()
+        {
+            if (!IsGameplayInputActive)
+            {
+                return Vector2.zero;
+            }
+
+            Vector2 value = InputMode == PlayerInputMode.Desktop
+                ? desktopMoveInput
+                : mobileMoveInput;
+            return Vector2.ClampMagnitude(value, 1f);
+        }
+
+        private Vector2 GetLookInput()
+        {
+            if (!IsGameplayInputActive)
+            {
+                return Vector2.zero;
+            }
+
+            return InputMode == PlayerInputMode.Desktop
+                ? desktopLookInput
+                : mobileLookDelta;
         }
     }
 }
