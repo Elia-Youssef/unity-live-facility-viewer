@@ -1,12 +1,11 @@
 {
-    "name": "FacilityViewer.Tests.Editor",
+    "name": "FacilityViewer.Tests.PlayMode",
     "rootNamespace": "FacilityViewer.Tests",
     "references": [
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
