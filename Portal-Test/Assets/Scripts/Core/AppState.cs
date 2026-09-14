@@ -11,6 +11,7 @@ namespace FacilityViewer.Core
         [SerializeField] private string currentLevelId = string.Empty;
         [SerializeField] private string currentLevelName = string.Empty;
         [SerializeField] private string statusMessage = string.Empty;
+        [SerializeField] private string selectedThemeId = MaterialThemeIds.Standard;
 
         public event Action<AppState> Changed;
 
@@ -18,6 +19,7 @@ namespace FacilityViewer.Core
         public string CurrentLevelId => currentLevelId;
         public string CurrentLevelName => currentLevelName;
         public string StatusMessage => statusMessage;
+        public string SelectedThemeId => selectedThemeId;
         public bool IsInitialized => transitionPhase != FacilityTransitionPhase.Uninitialized;
         public bool IsTransitioning => IsActiveTransitionPhase(transitionPhase);
         public bool HasError => transitionPhase == FacilityTransitionPhase.Failed;
@@ -26,6 +28,9 @@ namespace FacilityViewer.Core
         {
             currentLevelId = string.Empty;
             currentLevelName = string.Empty;
+            selectedThemeId = string.IsNullOrWhiteSpace(selectedThemeId)
+                ? MaterialThemeIds.Standard
+                : selectedThemeId.Trim();
             ApplyTransitionState(FacilityTransitionPhase.Idle, initialStatus);
         }
 
@@ -51,6 +56,37 @@ namespace FacilityViewer.Core
         public void SetFailure(string message)
         {
             ApplyTransitionState(FacilityTransitionPhase.Failed, message);
+        }
+
+        /// <summary>
+        /// Updates the selected material-theme ID without changing the active transition phase.
+        /// </summary>
+        public bool SetSelectedTheme(string themeId)
+        {
+            string normalizedThemeId = themeId?.Trim() ?? string.Empty;
+
+            if (!MaterialThemeIds.IsKnown(normalizedThemeId))
+            {
+                return false;
+            }
+
+            if (string.Equals(selectedThemeId, normalizedThemeId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            selectedThemeId = normalizedThemeId;
+            Changed?.Invoke(this);
+            return true;
+        }
+
+        /// <summary>
+        /// Publishes a status message without changing the active transition phase.
+        /// </summary>
+        public void SetStatusMessage(string message)
+        {
+            statusMessage = message?.Trim() ?? string.Empty;
+            Changed?.Invoke(this);
         }
 
         public static bool IsActiveTransitionPhase(FacilityTransitionPhase phase)
