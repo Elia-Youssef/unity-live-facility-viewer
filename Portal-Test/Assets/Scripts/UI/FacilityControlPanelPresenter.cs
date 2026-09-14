@@ -30,6 +30,7 @@ namespace FacilityViewer.UI
         public event Action<FacilityLightGroupId> LightGroupRequested;
 
         public string FocusedControlName => panelView?.FocusedControlName ?? string.Empty;
+        public bool HasThemeControlContract => isActiveAndEnabled && panelView != null;
 
         public void SetThemeControlsAvailable(bool isAvailable)
         {
