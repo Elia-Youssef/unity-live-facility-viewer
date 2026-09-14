@@ -12,10 +12,14 @@ namespace FacilityViewer.Player
     {
         private const int OverlapCapacity = 16;
         private const int RecoveryOverlapCapacity = 128;
+        private const int TeleportPadLayer = 8;
+        private const int TeleportPadLayerMask = 1 << TeleportPadLayer;
 
         [SerializeField] private PlayerInputRouter inputRouter;
         [SerializeField] private CharacterController characterController;
-        [SerializeField] private LayerMask interactionLayers = ~0;
+        [SerializeField]
+        [Tooltip("Only the TeleportPad layer (layer 8) is queried for pad interaction.")]
+        private LayerMask interactionLayers = TeleportPadLayerMask;
 
         private readonly List<TeleportPad> overlappingPads = new();
         private readonly HashSet<TeleportPad> detectedPads = new();
@@ -35,6 +39,7 @@ namespace FacilityViewer.Player
         {
             inputRouter = GetComponent<PlayerInputRouter>();
             characterController = GetComponent<CharacterController>();
+            interactionLayers = TeleportPadLayerMask;
         }
 
         private void OnEnable()

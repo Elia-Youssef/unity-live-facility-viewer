@@ -116,6 +116,20 @@ namespace FacilityViewer.Tests
         }
 
         [Test]
+        public void ProductionScenesAreEnabledInOrderInGlobalBuildSettings()
+        {
+            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
+
+            Assert.That(scenes, Has.Length.EqualTo(ProductionScenes.Length));
+
+            for (int index = 0; index < ProductionScenes.Length; index++)
+            {
+                Assert.That(scenes[index].enabled, Is.True, ProductionScenes[index]);
+                Assert.That(scenes[index].path, Is.EqualTo(ProductionScenes[index]));
+            }
+        }
+
+        [Test]
         public void BootstrapUiAndControlPanelPresenterAreFullyConnected()
         {
             SceneSetup[] previousSetup = EditorSceneManager.GetSceneManagerSetup();
@@ -453,6 +467,41 @@ namespace FacilityViewer.Tests
             ambientHandler.DynamicInvoke();
             Assert.That(ThemeRequests, Has.Count.EqualTo(1));
             Assert.That(LightRequests, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ControlPanelViewRejectsMissingThemeAndLightingButtons()
+        {
+            System.Type viewType = System.Type.GetType(
+                "FacilityViewer.UI.FacilityControlPanelView, Assembly-CSharp");
+            VisualTreeAsset visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(BootstrapShellPath);
+
+            Assert.That(viewType, Is.Not.Null);
+            MethodInfo tryCreate = viewType.GetMethod("TryCreate", BindingFlags.Static | BindingFlags.Public);
+            Assert.That(tryCreate, Is.Not.Null);
+
+            string[] controlButtonNames =
+            {
+                "theme-standard-button",
+                "theme-maintenance-button",
+                "theme-emergency-button",
+                "lighting-ambient-button",
+                "lighting-operations-button",
+                "lighting-emergency-button"
+            };
+
+            for (int index = 0; index < controlButtonNames.Length; index++)
+            {
+                TemplateContainer incompleteTree = visualTreeAsset.CloneTree();
+                incompleteTree.Q<Button>(controlButtonNames[index]).RemoveFromHierarchy();
+                object[] tryCreateArguments = { incompleteTree, null };
+
+                Assert.That(
+                    (bool)tryCreate.Invoke(null, tryCreateArguments),
+                    Is.False,
+                    controlButtonNames[index]);
+                Assert.That(tryCreateArguments[1], Is.Null, controlButtonNames[index]);
+            }
         }
 
         [Test]

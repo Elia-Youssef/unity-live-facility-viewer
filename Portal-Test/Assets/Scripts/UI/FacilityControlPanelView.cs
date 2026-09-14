@@ -83,6 +83,12 @@ namespace FacilityViewer.UI
             Label transitionStatusLabel = root.Q<Label>(FacilityControlPanelElementNames.TransitionStatusLabel);
             Label loadingStatusLabel = root.Q<Label>(FacilityControlPanelElementNames.LoadingStatusLabel);
             VisualElement levelButtons = root.Q<VisualElement>(FacilityControlPanelElementNames.LevelButtons);
+            Button standardThemeButton = root.Q<Button>(FacilityControlPanelIds.StandardThemeButtonName);
+            Button maintenanceThemeButton = root.Q<Button>(FacilityControlPanelIds.MaintenanceThemeButtonName);
+            Button emergencyThemeButton = root.Q<Button>(FacilityControlPanelIds.EmergencyThemeButtonName);
+            Button ambientLightButton = root.Q<Button>(FacilityControlPanelIds.AmbientLightButtonName);
+            Button operationsLightButton = root.Q<Button>(FacilityControlPanelIds.OperationsLightButtonName);
+            Button emergencyLightButton = root.Q<Button>(FacilityControlPanelIds.EmergencyLightButtonName);
 
             if (appShell == null
                 || appSafeArea == null
@@ -95,7 +101,13 @@ namespace FacilityViewer.UI
                 || transitionPhaseLabel == null
                 || transitionStatusLabel == null
                 || loadingStatusLabel == null
-                || levelButtons == null)
+                || levelButtons == null
+                || standardThemeButton == null
+                || maintenanceThemeButton == null
+                || emergencyThemeButton == null
+                || ambientLightButton == null
+                || operationsLightButton == null
+                || emergencyLightButton == null)
             {
                 return false;
             }
@@ -357,7 +369,7 @@ namespace FacilityViewer.UI
 
             if (button == null)
             {
-                return;
+                throw new InvalidOperationException($"Required theme button '{buttonName}' is missing.");
             }
 
             Action clickHandler = () => themeRequestHandler?.Invoke(theme);
@@ -372,7 +384,7 @@ namespace FacilityViewer.UI
 
             if (button == null)
             {
-                return;
+                throw new InvalidOperationException($"Required lighting button '{buttonName}' is missing.");
             }
 
             Action clickHandler = () => lightRequestHandler?.Invoke(group);

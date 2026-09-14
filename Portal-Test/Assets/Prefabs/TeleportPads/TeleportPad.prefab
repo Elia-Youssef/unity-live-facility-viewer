@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 2729202645690216693}
   - component: {fileID: 397961736139629666}
   - component: {fileID: 6153825057710986867}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TeleportPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}

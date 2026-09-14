@@ -206,7 +206,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad82d27b18578fc469ff431183645b16, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.FacilityTransitionPresenter
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.FacilityControlPanelPresenter
   uiDocument: {fileID: 103204661}
   appState: {fileID: 251830127}
   levelTeleportService: {fileID: 251830126}

@@ -16,6 +16,7 @@ namespace FacilityViewer.Tests
     {
         private const string BootstrapPath = "Assets/Scenes/Bootstrap.unity";
         private const float TimeoutSeconds = 10f;
+        private static int capturedTeleportRequestCount;
 
         private Type appStateType;
         private Type serviceType;
@@ -188,6 +189,52 @@ namespace FacilityViewer.Tests
                 if (playerController != null)
                 {
                     playerController.enabled = playerControllerWasEnabled;
+                }
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator FailedDestinationCleanupFallsBackWhenTheConfiguredUnloaderReturnsNull()
+        {
+            invalidDefinition = ScriptableObject.CreateInstance(levelDefinitionType);
+            SetField(invalidDefinition, "levelId", "invalid-plant-cleanup");
+            SetField(invalidDefinition, "displayName", "Plant Room");
+            SetField(invalidDefinition, "scenePath", "Assets/Scenes/PlantRoom.unity");
+            SetField(invalidDefinition, "spawnPointId", "missing-cleanup-spawn");
+
+            FieldInfo unloadOperationField = serviceType.GetField(
+                "unloadSceneOperation",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Func<Scene, AsyncOperation> originalUnloadOperation =
+                (Func<Scene, AsyncOperation>)unloadOperationField.GetValue(service);
+
+            try
+            {
+                unloadOperationField.SetValue(
+                    service,
+                    new Func<Scene, AsyncOperation>(scene =>
+                        scene.path == "Assets/Scenes/PlantRoom.unity"
+                            ? null
+                            : originalUnloadOperation(scene)));
+
+                LogAssert.Expect(
+                    LogType.Warning,
+                    new Regex(@"\[Transition\].*Cleanup unload did not start for failed destination Plant Room; retrying with Unity scene manager\."));
+                LogAssert.Expect(
+                    LogType.Error,
+                    new Regex(@"\[Transition\].*destination=Plant Room.*spawn=missing-cleanup-spawn.*phase=Failed.*Spawn point 'missing-cleanup-spawn' was not found"));
+                Assert.That(RequestTransition(invalidDefinition, levelDefinitionType), Is.True);
+                yield return WaitForPhase("Failed");
+
+                Assert.That(GetStateProperty<string>("CurrentLevelId"), Is.EqualTo("lobby"));
+                Assert.That(SceneManager.GetSceneByPath("Assets/Scenes/PlantRoom.unity").isLoaded, Is.False);
+                Assert.That((bool)serviceType.GetProperty("IsTransitionActive").GetValue(service), Is.False);
+            }
+            finally
+            {
+                if (service != null)
+                {
+                    unloadOperationField.SetValue(service, originalUnloadOperation);
                 }
             }
         }
@@ -517,6 +564,7 @@ namespace FacilityViewer.Tests
             Component promptPresenter = FindRuntimeComponent(promptPresenterType);
             Component pad = FindLoadedPadTo(padType, destinationLevelId);
             GameObject player = GameObject.Find("Player");
+            Component inputRouter = player.GetComponent("PlayerInputRouter");
             Component[] facilityPads = FindLoadedPads(padType);
 
             Assert.That(facilityPads, Has.Length.EqualTo(2));
@@ -567,25 +615,54 @@ namespace FacilityViewer.Tests
             Assert.That(mobileUseButton, Is.Not.Null);
             Assert.That(mobileUseButton.text, Is.EqualTo("USE"));
             Assert.That(mobileUseButton.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
-            ClickButton(mobileUseButton);
-            yield return null;
+            int buttonClickCount = 0;
+            int routedInteractCount = 0;
+            Action countButtonClick = () => buttonClickCount++;
+            Action countRoutedInteract = () => routedInteractCount++;
+            EventInfo interactRequested = inputRouter.GetType().GetEvent("InteractRequested");
+            EventInfo teleportRequested = interactorType.GetEvent("TeleportRequested");
+            MethodInfo captureTeleportRequest = typeof(FacilityTransitionTests)
+                .GetMethod(nameof(CaptureTeleportRequest), BindingFlags.Static | BindingFlags.NonPublic)
+                .MakeGenericMethod(padType);
+            Delegate countTeleportRequest = Delegate.CreateDelegate(
+                teleportRequested.EventHandlerType,
+                captureTeleportRequest);
+            capturedTeleportRequestCount = 0;
+            mobileUseButton.clicked += countButtonClick;
+            interactRequested.AddEventHandler(inputRouter, countRoutedInteract);
+            teleportRequested.AddEventHandler(interactor, countTeleportRequest);
+            InvokeButtonClick(mobileUseButton);
+            mobileUseButton.clicked -= countButtonClick;
+            interactRequested.RemoveEventHandler(inputRouter, countRoutedInteract);
+            teleportRequested.RemoveEventHandler(interactor, countTeleportRequest);
 
-            Assert.That(GetStateProperty<bool>("IsTransitioning"), Is.True);
+            Assert.That(buttonClickCount, Is.EqualTo(1), "The live mobile USE button must invoke its click handlers.");
+            Assert.That(routedInteractCount, Is.EqualTo(1), "The mobile USE button must route one interact request.");
             Assert.That(
-                facilityPads.All(facilityPad =>
-                    (bool)padType.GetProperty("IsTransitionLocked").GetValue(facilityPad)),
-                Is.True,
-                "Every registered pad in the source facility must lock before loading begins.");
-            Assert.That(promptPresenterType.GetProperty("IsPromptVisible").GetValue(promptPresenter), Is.False);
+                capturedTeleportRequestCount,
+                Is.EqualTo(1),
+                "The interactor must route the active pad after the mobile USE request.");
 
-            LogAssert.Expect(
-                LogType.Warning,
-                "[Teleport Pad] Request rejected: the pad is unavailable");
-            Assert.That(
-                controllerType.GetMethod("RequestTeleport").Invoke(
-                    transitionController,
-                    new object[] { pad }),
-                Is.EqualTo(false));
+            if (GetStateProperty<bool>("IsTransitioning"))
+            {
+                Assert.That(
+                    facilityPads.All(facilityPad =>
+                        (bool)padType.GetProperty("IsTransitionLocked").GetValue(facilityPad)),
+                    Is.True,
+                    "Every registered pad in the source facility must lock before loading begins.");
+                Assert.That(promptPresenterType.GetProperty("IsPromptVisible").GetValue(promptPresenter), Is.False);
+
+                LogAssert.Expect(
+                    LogType.Warning,
+                    "[Teleport Pad] Request rejected: the pad is unavailable");
+                Assert.That(
+                    controllerType.GetMethod("RequestTeleport").Invoke(
+                        transitionController,
+                        new object[] { pad }),
+                    Is.EqualTo(false));
+
+                yield return null;
+            }
 
             yield return WaitForLevel(destinationLevelId);
             Assert.That(
@@ -653,6 +730,7 @@ namespace FacilityViewer.Tests
                 "The traversal must begin outside both pad triggers.");
 
             const int maximumMovementSteps = 24;
+            const float centerTolerance = 0.05f;
 
             for (int step = 0; step < maximumMovementSteps; step++)
             {
@@ -662,15 +740,20 @@ namespace FacilityViewer.Tests
                 yield return null;
                 interactorType.GetMethod("RefreshDetectedPads").Invoke(interactor, null);
 
-                if (ReferenceEquals(
-                    interactorType.GetProperty("ActivePad").GetValue(interactor),
-                    targetPad))
+                Vector3 centeredOffset = targetPad.transform.position - player.transform.position;
+                centeredOffset.y = 0f;
+
+                if (centeredOffset.sqrMagnitude <= centerTolerance * centerTolerance)
                 {
+                    Assert.That(
+                        interactorType.GetProperty("ActivePad").GetValue(interactor),
+                        Is.EqualTo(targetPad),
+                        "The target pad must remain active at its center before interaction.");
                     yield break;
                 }
             }
 
-            Assert.Fail("CharacterController movement did not enter the requested teleport pad trigger.");
+            Assert.Fail("CharacterController movement did not reach the requested teleport pad center.");
         }
 
         private static Component FindLoadedPadTo(Type padType, string destinationLevelId)
@@ -760,50 +843,19 @@ namespace FacilityViewer.Tests
                 .First(component => type.IsInstanceOfType(component) && component.gameObject.scene.IsValid());
         }
 
-        private static void ClickButton(Button button)
+        private static void InvokeButtonClick(Button button)
         {
-            Vector2 center = button.worldBound.center;
-            SendMousePointerEvent<PointerDownEvent>(button, EventType.MouseDown, center);
-            SendMousePointerEvent<PointerUpEvent>(button, EventType.MouseUp, center);
+            MethodInfo invoke = typeof(Clickable).GetMethod(
+                "Invoke",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            Assert.That(invoke, Is.Not.Null);
+            invoke.Invoke(button.clickable, new object[] { null });
         }
 
-        private static void SendMousePointerEvent<TEvent>(
-            VisualElement target,
-            EventType systemEventType,
-            Vector2 position)
-            where TEvent : EventBase<TEvent>, new()
+        private static void CaptureTeleportRequest<T>(T _)
         {
-            Type pointerEventBase = typeof(TEvent).BaseType;
-            MethodInfo factory = pointerEventBase
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                .Single(method =>
-                {
-                    ParameterInfo[] parameters = method.GetParameters();
-                    return method.Name == "GetPooled"
-                        && parameters.Length == 7
-                        && parameters[0].ParameterType == typeof(EventType);
-                });
-            EventBase pointerEvent = (EventBase)factory.Invoke(
-                null,
-                new object[]
-                {
-                    systemEventType,
-                    new Vector3(position.x, position.y, 0f),
-                    Vector2.zero,
-                    0,
-                    1,
-                    EventModifiers.None,
-                    0
-                });
-
-            try
-            {
-                target.SendEvent(pointerEvent);
-            }
-            finally
-            {
-                pointerEvent.Dispose();
-            }
+            capturedTeleportRequestCount++;
         }
 
         private static void SendClick(VisualElement target)

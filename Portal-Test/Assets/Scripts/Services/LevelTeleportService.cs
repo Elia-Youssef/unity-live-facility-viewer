@@ -347,9 +347,19 @@ namespace FacilityViewer.Services
             string spawnId,
             float startedAt)
         {
+            string failureMessage = message;
+
             if (unloadScene && sceneToCleanUp.IsValid() && sceneToCleanUp.isLoaded)
             {
                 AsyncOperation unloadOperation = BeginSceneUnload(sceneToCleanUp);
+
+                if (unloadOperation == null)
+                {
+                    Debug.LogWarning(
+                        $"[Transition] Cleanup unload did not start for failed destination {destinationName}; retrying with Unity scene manager.",
+                        this);
+                    unloadOperation = SceneManager.UnloadSceneAsync(sceneToCleanUp);
+                }
 
                 if (unloadOperation != null)
                 {
@@ -358,10 +368,16 @@ namespace FacilityViewer.Services
                         yield return null;
                     }
                 }
+
+                if (sceneToCleanUp.IsValid() && sceneToCleanUp.isLoaded)
+                {
+                    failureMessage =
+                        $"{message} Failed to unload the failed destination scene: {sceneToCleanUp.name}.";
+                }
             }
 
-            appState.SetFailure(message);
-            LogFailure(requestId, oldSceneName, destinationName, spawnId, startedAt, message);
+            appState.SetFailure(failureMessage);
+            LogFailure(requestId, oldSceneName, destinationName, spawnId, startedAt, failureMessage);
             transitionRoutine = null;
         }
 

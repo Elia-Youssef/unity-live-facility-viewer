@@ -18,6 +18,9 @@ namespace FacilityViewer.Tests
         private const string BootstrapScenePath = "Assets/Scenes/Bootstrap.unity";
         private const string BootstrapShellPath = "Assets/UI/Documents/BootstrapShell.uxml";
         private const string PromptStylePath = "Assets/UI/Styles/TeleportPadPrompt.uss";
+        private const string TeleportPadLayerName = "TeleportPad";
+        private const int TeleportPadLayer = 8;
+        private const int TeleportPadLayerMask = 1 << TeleportPadLayer;
         private const float MinimumPadPositionSeparation = 0.01f;
 
         [Test]
@@ -119,6 +122,27 @@ namespace FacilityViewer.Tests
             Assert.That(
                 serializedInteractor.FindProperty("characterController").objectReferenceValue,
                 Is.EqualTo(player.GetComponent<CharacterController>()));
+        }
+
+        [Test]
+        public void TeleportPadLayerContractMatchesPrefabTriggerAndPlayerMask()
+        {
+            int configuredLayer = LayerMask.NameToLayer(TeleportPadLayerName);
+            GameObject padPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(TeleportPadPrefabPath);
+            GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath);
+            BoxCollider trigger = padPrefab.GetComponent<BoxCollider>();
+            Component interactor = playerPrefab.GetComponent("PlayerTeleportPadInteractor");
+
+            Assert.That(configuredLayer, Is.EqualTo(TeleportPadLayer));
+            Assert.That(padPrefab.layer, Is.EqualTo(configuredLayer));
+            Assert.That(trigger, Is.Not.Null);
+            Assert.That(trigger.gameObject.layer, Is.EqualTo(configuredLayer));
+            Assert.That(interactor, Is.Not.Null);
+
+            SerializedObject serializedInteractor = new(interactor);
+            Assert.That(
+                serializedInteractor.FindProperty("interactionLayers").intValue,
+                Is.EqualTo(TeleportPadLayerMask));
         }
 
         [Test]
