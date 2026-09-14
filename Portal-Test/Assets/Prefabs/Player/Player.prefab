@@ -155,7 +155,7 @@ MonoBehaviour:
   characterController: {fileID: 4905039014906397545}
   interactionLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
 --- !u!1 &2089132044875037987
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ namespace FacilityViewer.Tests
     public sealed class TeleportPadInteractionTests : InputTestFixture
     {
         private const string PlayerPrefabPath = "Assets/Prefabs/Player/Player.prefab";
+        private const int TeleportPadLayer = 8;
 
         private static readonly List<Component> RequestedPads = new();
 
@@ -349,11 +350,74 @@ namespace FacilityViewer.Tests
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator DefaultLayerCollidersCannotCrowdOutTeleportPadDetection()
+        {
+            Keyboard keyboard = InputSystem.AddDevice<Keyboard>();
+            Mouse mouse = InputSystem.AddDevice<Mouse>();
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath);
+            PlayerInput playerInput = PlayerInput.Instantiate(
+                prefab,
+                controlScheme: "Keyboard&Mouse",
+                pairWithDevices: new InputDevice[] { keyboard, mouse });
+            List<GameObject> ordinaryColliders = new();
+            GameObject padObject = null;
+
+            try
+            {
+                DisablePlayerOutput(playerInput.gameObject);
+                Component interactor = playerInput.GetComponent("PlayerTeleportPadInteractor");
+                Type interactorType = interactor.GetType();
+
+                for (int index = 0; index < 128; index++)
+                {
+                    GameObject ordinaryCollider = new($"Default Collider {index}");
+                    ordinaryCollider.layer = 0;
+                    ordinaryCollider.transform.position = Vector3.zero;
+                    ordinaryCollider.AddComponent<BoxCollider>();
+                    ordinaryColliders.Add(ordinaryCollider);
+                }
+
+                padObject = CreateConfiguredPad();
+                padObject.transform.position = Vector3.zero;
+                Component pad = padObject.GetComponent("TeleportPad");
+
+                Physics.SyncTransforms();
+                interactorType.GetMethod("RefreshDetectedPads").Invoke(interactor, null);
+
+                Assert.That(
+                    interactorType.GetProperty("UsedOverlapRecovery").GetValue(interactor),
+                    Is.False,
+                    "Default-layer colliders must not enter the teleport-pad query.");
+                Assert.That(
+                    interactorType.GetProperty("IsOverlapRecoverySaturated").GetValue(interactor),
+                    Is.False);
+                Assert.That(
+                    interactorType.GetProperty("DetectedPadCount").GetValue(interactor),
+                    Is.EqualTo(1));
+                Assert.That(interactorType.GetProperty("ActivePad").GetValue(interactor), Is.EqualTo(pad));
+            }
+            finally
+            {
+                DestroyConfiguredPad(padObject);
+
+                foreach (GameObject ordinaryCollider in ordinaryColliders)
+                {
+                    UnityEngine.Object.DestroyImmediate(ordinaryCollider);
+                }
+
+                UnityEngine.Object.DestroyImmediate(playerInput.gameObject);
+            }
+
+            yield return null;
+        }
+
         private static GameObject CreateConfiguredPad(bool active = true)
         {
             Type padType = Type.GetType("FacilityViewer.World.TeleportPad, Assembly-CSharp");
             Type levelType = Type.GetType("FacilityViewer.Core.LevelDefinition, Assembly-CSharp");
             GameObject padObject = new("Configured Teleport Pad");
+            padObject.layer = TeleportPadLayer;
 
             if (!active)
             {
