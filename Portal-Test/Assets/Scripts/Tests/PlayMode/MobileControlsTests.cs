@@ -309,7 +309,7 @@ namespace FacilityViewer.Tests
             method.Invoke(coordinator, new[] { Enum.Parse(modeType, modeName) });
         }
 
-        private static void ClickButton(Button button)
+        internal static void ClickButton(Button button)
         {
             Vector2 center = button.worldBound.center;
             SendPointerEvent<PointerDownEvent>(

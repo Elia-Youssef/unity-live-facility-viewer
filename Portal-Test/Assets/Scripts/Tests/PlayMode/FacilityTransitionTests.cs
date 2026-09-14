@@ -631,7 +631,7 @@ namespace FacilityViewer.Tests
             mobileUseButton.clicked += countButtonClick;
             interactRequested.AddEventHandler(inputRouter, countRoutedInteract);
             teleportRequested.AddEventHandler(interactor, countTeleportRequest);
-            InvokeButtonClick(mobileUseButton);
+            MobileControlsTests.ClickButton(mobileUseButton);
             mobileUseButton.clicked -= countButtonClick;
             interactRequested.RemoveEventHandler(inputRouter, countRoutedInteract);
             teleportRequested.RemoveEventHandler(interactor, countTeleportRequest);
@@ -643,26 +643,27 @@ namespace FacilityViewer.Tests
                 Is.EqualTo(1),
                 "The interactor must route the active pad after the mobile USE request.");
 
-            if (GetStateProperty<bool>("IsTransitioning"))
-            {
-                Assert.That(
-                    facilityPads.All(facilityPad =>
-                        (bool)padType.GetProperty("IsTransitionLocked").GetValue(facilityPad)),
-                    Is.True,
-                    "Every registered pad in the source facility must lock before loading begins.");
-                Assert.That(promptPresenterType.GetProperty("IsPromptVisible").GetValue(promptPresenter), Is.False);
+            Assert.That(
+                GetStateProperty<bool>("IsTransitioning"),
+                Is.True,
+                "The transition must be observable before the mobile pointer event returns.");
+            Assert.That(
+                facilityPads.All(facilityPad =>
+                    (bool)padType.GetProperty("IsTransitionLocked").GetValue(facilityPad)),
+                Is.True,
+                "Every registered pad in the source facility must lock before loading begins.");
+            Assert.That(promptPresenterType.GetProperty("IsPromptVisible").GetValue(promptPresenter), Is.False);
 
-                LogAssert.Expect(
-                    LogType.Warning,
-                    "[Teleport Pad] Request rejected: the pad is unavailable");
-                Assert.That(
-                    controllerType.GetMethod("RequestTeleport").Invoke(
-                        transitionController,
-                        new object[] { pad }),
-                    Is.EqualTo(false));
+            LogAssert.Expect(
+                LogType.Warning,
+                "[Teleport Pad] Request rejected: the pad is unavailable");
+            Assert.That(
+                controllerType.GetMethod("RequestTeleport").Invoke(
+                    transitionController,
+                    new object[] { pad }),
+                Is.EqualTo(false));
 
-                yield return null;
-            }
+            yield return null;
 
             yield return WaitForLevel(destinationLevelId);
             Assert.That(
@@ -841,16 +842,6 @@ namespace FacilityViewer.Tests
         {
             return Resources.FindObjectsOfTypeAll<MonoBehaviour>()
                 .First(component => type.IsInstanceOfType(component) && component.gameObject.scene.IsValid());
-        }
-
-        private static void InvokeButtonClick(Button button)
-        {
-            MethodInfo invoke = typeof(Clickable).GetMethod(
-                "Invoke",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-
-            Assert.That(invoke, Is.Not.Null);
-            invoke.Invoke(button.clickable, new object[] { null });
         }
 
         private static void CaptureTeleportRequest<T>(T _)

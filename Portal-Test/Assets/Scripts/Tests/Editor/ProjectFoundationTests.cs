@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -18,6 +19,8 @@ namespace FacilityViewer.Tests
         private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
         private const string WindowsProfilePath = "Assets/Settings/BuildProfiles/Windows Development.asset";
         private const string AndroidProfilePath = "Assets/Settings/BuildProfiles/Android Development.asset";
+        private const string DefaultVolumeProfilePath = "Assets/Settings/DefaultVolumeProfile.asset";
+        private const string UniversalGlobalSettingsPath = "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset";
 
         [Test]
         public void BootstrapIsFirstEnabledBuildScene()
@@ -169,6 +172,38 @@ namespace FacilityViewer.Tests
 
             Assert.That(inputActions, Is.Not.Null);
             Assert.That(PlayerSettings.GetPreloadedAssets(), Does.Contain(inputActions));
+        }
+
+        [Test]
+        public void DefaultVolumeProfileContainsOnlyLoadableComponents()
+        {
+            Object profile = AssetDatabase.LoadMainAssetAtPath(DefaultVolumeProfilePath);
+
+            Assert.That(profile, Is.Not.Null);
+            Assert.That(profile.name, Is.EqualTo("DefaultVolumeProfile"));
+            Assert.That(
+                AssetDatabase.GetDependencies(UniversalGlobalSettingsPath),
+                Does.Contain(DefaultVolumeProfilePath));
+
+            SerializedProperty components = new SerializedObject(profile).FindProperty("components");
+
+            Assert.That(components, Is.Not.Null);
+            Assert.That(components.isArray, Is.True);
+            Assert.That(components.arraySize, Is.GreaterThan(0));
+
+            for (int index = 0; index < components.arraySize; index++)
+            {
+                Assert.That(
+                    components.GetArrayElementAtIndex(index).objectReferenceValue,
+                    Is.Not.Null,
+                    $"Volume component {index} must be loadable.");
+            }
+
+            Assert.That(AssetDatabase.LoadAllAssetsAtPath(DefaultVolumeProfilePath), Has.None.Null);
+
+            string serializedProfile = File.ReadAllText(DefaultVolumeProfilePath);
+            Assert.That(serializedProfile, Does.Not.Contain("m_Script: {fileID: 0}"));
+            Assert.That(serializedProfile, Does.Not.Contain("Unity.RenderPipelines.Core.Editor.Tests"));
         }
     }
 }
