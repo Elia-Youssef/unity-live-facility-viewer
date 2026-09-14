@@ -211,7 +211,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: fba4ab7aad71e8c499d736d6af4e9de9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -323,7 +323,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: 527cba2406a4a81438a774d84c055796, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -437,7 +437,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: fba4ab7aad71e8c499d736d6af4e9de9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -549,7 +549,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: 527cba2406a4a81438a774d84c055796, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -663,7 +663,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: fba4ab7aad71e8c499d736d6af4e9de9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -775,7 +775,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: 527cba2406a4a81438a774d84c055796, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -889,7 +889,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: fba4ab7aad71e8c499d736d6af4e9de9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1258,7 +1258,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: fba4ab7aad71e8c499d736d6af4e9de9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1320,6 +1320,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1816879855}
+  - component: {fileID: 1816879856}
   m_Layer: 0
   m_Name: Environment
   m_TagString: Untagged
@@ -1351,6 +1352,46 @@ Transform:
   - {fileID: 479637055}
   m_Father: {fileID: 2126295950}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1816879856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1816879854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e893b2f0b185042ba783a47f1b066a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.World.ThemeTarget
+  materialSlots:
+  - renderer: {fileID: 433392950}
+    materialSlotIndex: 0
+    groupId: facility-structure
+  - renderer: {fileID: 611458134}
+    materialSlotIndex: 0
+    groupId: facility-structure
+  - renderer: {fileID: 1169484329}
+    materialSlotIndex: 0
+    groupId: facility-structure
+  - renderer: {fileID: 1419001833}
+    materialSlotIndex: 0
+    groupId: facility-structure
+  - renderer: {fileID: 296065011}
+    materialSlotIndex: 0
+    groupId: facility-structure
+  - renderer: {fileID: 954935694}
+    materialSlotIndex: 0
+    groupId: facility-equipment
+  - renderer: {fileID: 364940862}
+    materialSlotIndex: 0
+    groupId: facility-equipment
+  - renderer: {fileID: 2089234030}
+    materialSlotIndex: 0
+    groupId: facility-equipment
+  - renderer: {fileID: 479637056}
+    materialSlotIndex: 0
+    groupId: facility-equipment
 --- !u!1 &1908930582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1507,7 +1548,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1e750f2fa81a91f44b845d154a24d2f0, type: 2}
+  - {fileID: 2100000, guid: 527cba2406a4a81438a774d84c055796, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
