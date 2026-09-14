@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "scenario": "lobby-material-ownership-comparison",
+  "unityVersion": "6000.5.9f1",
+  "rendererCount": 3,
+  "savedSharedMaterialReferenceCount": 2,
+  "propertyBlockOverrideRendererCount": 1,
+  "ownedRuntimeMaterialReferenceCount": 1,
+  "distinctComparisonMaterialObjectCount": 2,
+  "frameDebuggerStatus": "manual-native-window-gate",
+  "runtimeCountersStatus": "local-capture-only",
+  "memorySnapshotStatus": "local-temp-snapshot-only"
+}
