@@ -8,6 +8,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.TestTools;
 
 namespace FacilityViewer.Tests
@@ -152,6 +153,25 @@ namespace FacilityViewer.Tests
             Assert.That((bool)Invoke(service, "Initialize"), Is.False);
             Assert.That(GetProperty<bool>(service, "IsReady"), Is.False);
             Assert.That(GetProperty<UnityEngine.Object>(service, "CurrentThemeDefinition"), Is.Null);
+        }
+
+        [Test]
+        public void RuntimeValidationPolicyRelaxesOnlyNullGraphicsPropertyInspection()
+        {
+            Type policyType = Type.GetType(
+                "FacilityViewer.Services.MaterialThemeRuntimeValidationPolicy, Assembly-CSharp");
+            MethodInfo policy = policyType?.GetMethod(
+                "ShouldValidateRequiredShaderProperties",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.That(policyType, Is.Not.Null);
+            Assert.That(policy, Is.Not.Null);
+            Assert.That(
+                (bool)policy.Invoke(null, new object[] { GraphicsDeviceType.Null }),
+                Is.False);
+            Assert.That(
+                (bool)policy.Invoke(null, new object[] { GraphicsDeviceType.Direct3D11 }),
+                Is.True);
         }
 
         [Test]

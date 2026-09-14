@@ -156,6 +156,78 @@ namespace FacilityViewer.Tests
         }
 
         [Test]
+        public void RelaxedPropertyInspectionKeepsThemeAndMaterialContractValidation()
+        {
+            AssertRuntimeTypesAvailable();
+            UnityEngine.Object standard = CreateDefinition("standard", "Standard");
+            UnityEngine.Object maintenance = CreateDefinition("maintenance", "Maintenance");
+            UnityEngine.Object emergency = CreateDefinition("emergency", "Emergency");
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
+            Material wrongShaderMaterial = new(litShader);
+
+            try
+            {
+                Assert.That(litShader, Is.Not.Null);
+                UnityEngine.Object[] definitions = { standard, maintenance, emergency };
+                Assert.That(
+                    TryValidateCatalogWithoutPropertyInspection(definitions, out IReadOnlyList<string> validErrors),
+                    Is.True,
+                    string.Join("\n", validErrors));
+
+                SerializedObject serializedStandard = new(standard);
+                SerializedProperty groupMaterials = serializedStandard.FindProperty("groupMaterials");
+                groupMaterials.GetArrayElementAtIndex(0)
+                    .FindPropertyRelative("material").objectReferenceValue = wrongShaderMaterial;
+                serializedStandard.ApplyModifiedPropertiesWithoutUndo();
+
+                Assert.That(
+                    TryValidateCatalogWithoutPropertyInspection(definitions, out IReadOnlyList<string> wrongShaderErrors),
+                    Is.False);
+                Assert.That(wrongShaderErrors, Has.Some.Contains("expected '" +
+                    (string)FacilitySurfaceShaderType.GetField("ShaderName").GetValue(null) + "'"));
+                Assert.That(wrongShaderErrors, Has.None.Contains("missing required FacilitySurface shader property"));
+
+                groupMaterials.GetArrayElementAtIndex(0)
+                    .FindPropertyRelative("material").objectReferenceValue = null;
+                serializedStandard.ApplyModifiedPropertiesWithoutUndo();
+
+                Assert.That(
+                    TryValidateCatalogWithoutPropertyInspection(definitions, out IReadOnlyList<string> nullMaterialErrors),
+                    Is.False);
+                Assert.That(nullMaterialErrors, Has.Some.Contains("has no material"));
+
+                groupMaterials.GetArrayElementAtIndex(0)
+                    .FindPropertyRelative("material").objectReferenceValue = LoadFacilityMaterial();
+                groupMaterials.arraySize = 1;
+                serializedStandard.ApplyModifiedPropertiesWithoutUndo();
+
+                Assert.That(
+                    TryValidateCatalogWithoutPropertyInspection(definitions, out IReadOnlyList<string> incompleteGroupErrors),
+                    Is.False);
+                Assert.That(incompleteGroupErrors,
+                    Has.Some.Contains("missing group ID 'facility-equipment'"));
+
+                groupMaterials.arraySize = 2;
+                SetMapping(groupMaterials.GetArrayElementAtIndex(0), "facility-structure", LoadFacilityMaterial());
+                SetMapping(groupMaterials.GetArrayElementAtIndex(1), "facility-equipment", LoadFacilityMaterial());
+                serializedStandard.FindProperty("themeId").stringValue = "unknown-theme";
+                serializedStandard.ApplyModifiedPropertiesWithoutUndo();
+
+                Assert.That(
+                    TryValidateCatalogWithoutPropertyInspection(definitions, out IReadOnlyList<string> unknownThemeErrors),
+                    Is.False);
+                Assert.That(unknownThemeErrors, Has.Some.Contains("uses unknown theme ID 'unknown-theme'"));
+                Assert.That(unknownThemeErrors,
+                    Has.Some.Contains("Missing a material theme definition for theme ID 'standard'"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(wrongShaderMaterial);
+                DestroyDefinitions(standard, maintenance, emergency);
+            }
+        }
+
+        [Test]
         public void EditorProjectValidationCommandReportsTheValidProjectCatalog()
         {
             Type validatorType = Type.GetType(
@@ -233,6 +305,26 @@ namespace FacilityViewer.Tests
             object[] arguments = { typedDefinitions, null };
             bool isValid = (bool)validateCatalog.Invoke(null, arguments);
             errors = (IReadOnlyList<string>)arguments[1];
+            return isValid;
+        }
+
+        private static bool TryValidateCatalogWithoutPropertyInspection(
+            IReadOnlyList<UnityEngine.Object> definitions,
+            out IReadOnlyList<string> errors)
+        {
+            Array typedDefinitions = Array.CreateInstance(MaterialThemeDefinitionType, definitions.Count);
+            for (int index = 0; index < definitions.Count; index++)
+            {
+                typedDefinitions.SetValue(definitions[index], index);
+            }
+
+            MethodInfo validateCatalog = MaterialThemeDefinitionValidatorType
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Single(method => method.Name == "TryValidateCatalog"
+                    && method.GetParameters().Length == 3);
+            object[] arguments = { typedDefinitions, false, null };
+            bool isValid = (bool)validateCatalog.Invoke(null, arguments);
+            errors = (IReadOnlyList<string>)arguments[2];
             return isValid;
         }
 
