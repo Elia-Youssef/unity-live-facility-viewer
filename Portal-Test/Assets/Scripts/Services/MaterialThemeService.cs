@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FacilityViewer.Core;
 using FacilityViewer.World;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace FacilityViewer.Services
@@ -88,7 +89,15 @@ namespace FacilityViewer.Services
                 return false;
             }
 
-            if (!MaterialThemeDefinitionValidator.TryValidateCatalog(themeCatalog, out IReadOnlyList<string> errors))
+            // NullGfx player runs do not expose Shader Graph property reflection. Keep every
+            // structural and shader-identity check, and relax only HasProperty validation there.
+            bool validateRequiredShaderProperties =
+                MaterialThemeRuntimeValidationPolicy.ShouldValidateRequiredShaderProperties(
+                    SystemInfo.graphicsDeviceType);
+            if (!MaterialThemeDefinitionValidator.TryValidateCatalog(
+                    themeCatalog,
+                    validateRequiredShaderProperties,
+                    out IReadOnlyList<string> errors))
             {
                 Debug.LogError(
                     $"MaterialThemeService theme catalog is invalid: {string.Join(" ", errors)}",
@@ -486,6 +495,15 @@ namespace FacilityViewer.Services
                     return (hashCode * 397) ^ (error != null ? error.GetHashCode() : 0);
                 }
             }
+        }
+    }
+
+    internal static class MaterialThemeRuntimeValidationPolicy
+    {
+        internal static bool ShouldValidateRequiredShaderProperties(
+            GraphicsDeviceType graphicsDeviceType)
+        {
+            return graphicsDeviceType != GraphicsDeviceType.Null;
         }
     }
 }

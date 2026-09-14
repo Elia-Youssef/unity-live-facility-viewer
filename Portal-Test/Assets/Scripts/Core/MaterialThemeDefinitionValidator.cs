@@ -5,13 +5,24 @@ using UnityEngine;
 namespace FacilityViewer.Core
 {
     /// <summary>
-    /// Validates the data contract consumed by the future material-theme service.
+    /// Validates the material-theme data contract consumed by MaterialThemeService.
     /// It contains no scene, renderer, or presentation dependencies.
     /// </summary>
     public static class MaterialThemeDefinitionValidator
     {
         public static bool TryValidateCatalog(
             IReadOnlyList<MaterialThemeDefinition> definitions,
+            out IReadOnlyList<string> errors)
+        {
+            return TryValidateCatalog(
+                definitions,
+                validateRequiredShaderProperties: true,
+                out errors);
+        }
+
+        internal static bool TryValidateCatalog(
+            IReadOnlyList<MaterialThemeDefinition> definitions,
+            bool validateRequiredShaderProperties,
             out IReadOnlyList<string> errors)
         {
             List<string> validationErrors = new();
@@ -53,7 +64,10 @@ namespace FacilityViewer.Core
                         }
                     }
 
-                    ValidateDefinition(definition, validationErrors);
+                    ValidateDefinition(
+                        definition,
+                        validationErrors,
+                        validateRequiredShaderProperties);
                 }
             }
 
@@ -83,7 +97,10 @@ namespace FacilityViewer.Core
             }
             else
             {
-                ValidateDefinition(definition, validationErrors);
+                ValidateDefinition(
+                    definition,
+                    validationErrors,
+                    validateRequiredShaderProperties: true);
             }
 
             errors = validationErrors;
@@ -92,7 +109,8 @@ namespace FacilityViewer.Core
 
         private static void ValidateDefinition(
             MaterialThemeDefinition definition,
-            ICollection<string> validationErrors)
+            ICollection<string> validationErrors,
+            bool validateRequiredShaderProperties)
         {
             string definitionLabel = string.IsNullOrWhiteSpace(definition.ThemeId)
                 ? definition.name
@@ -144,7 +162,12 @@ namespace FacilityViewer.Core
                     }
                 }
 
-                ValidateMaterial(definitionLabel, groupId, entry.Material, validationErrors);
+                ValidateMaterial(
+                    definitionLabel,
+                    groupId,
+                    entry.Material,
+                    validationErrors,
+                    validateRequiredShaderProperties);
             }
 
             for (int groupIndex = 0; groupIndex < MaterialThemeGroupIds.RequiredIds.Count; groupIndex++)
@@ -162,7 +185,8 @@ namespace FacilityViewer.Core
             string definitionLabel,
             string groupId,
             Material material,
-            ICollection<string> validationErrors)
+            ICollection<string> validationErrors,
+            bool validateRequiredShaderProperties)
         {
             string mappingLabel = string.IsNullOrWhiteSpace(groupId) ? "<empty>" : groupId;
             if (material == null)
@@ -184,6 +208,11 @@ namespace FacilityViewer.Core
                 validationErrors.Add(
                     $"Material '{material.name}' for group ID '{mappingLabel}' uses shader " +
                     $"'{material.shader.name}', expected '{FacilitySurfaceShader.ShaderName}'.");
+            }
+
+            if (!validateRequiredShaderProperties)
+            {
+                return;
             }
 
             for (int propertyIndex = 0;
