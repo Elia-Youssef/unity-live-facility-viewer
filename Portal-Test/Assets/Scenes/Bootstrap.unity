@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 103204662}
   - component: {fileID: 103204663}
   - component: {fileID: 103204664}
+  - component: {fileID: 103204665}
   m_Layer: 0
   m_Name: Application UI
   m_TagString: Untagged
@@ -227,6 +228,21 @@ MonoBehaviour:
   appState: {fileID: 251830127}
   playerInteractor: {fileID: 1061031106}
   inputRouter: {fileID: 1061031107}
+--- !u!114 &103204665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103204659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 807b9585149dbd9458ea8b7e93cc1f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.UI.MaterialThemePanelCoordinator
+  panelPresenter: {fileID: 103204663}
+  materialThemeService: {fileID: 251830130}
+  appState: {fileID: 251830127}
 --- !u!1 &251830124
 GameObject:
   m_ObjectHideFlags: 0
