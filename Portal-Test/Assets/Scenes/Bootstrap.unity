@@ -240,6 +240,7 @@ GameObject:
   - component: {fileID: 251830126}
   - component: {fileID: 251830125}
   - component: {fileID: 251830129}
+  - component: {fileID: 251830130}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -261,6 +262,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Core.AppBootstrapper
   appState: {fileID: 251830127}
   levelTeleportService: {fileID: 251830126}
+  materialThemeService: {fileID: 251830130}
   applicationUi: {fileID: 103204661}
 --- !u!114 &251830126
 MonoBehaviour:
@@ -298,6 +300,7 @@ MonoBehaviour:
   currentLevelId: 
   currentLevelName: 
   statusMessage: 
+  selectedThemeId: standard
 --- !u!4 &251830128
 Transform:
   m_ObjectHideFlags: 0
@@ -330,6 +333,23 @@ MonoBehaviour:
   appState: {fileID: 251830127}
   levelTeleportService: {fileID: 251830126}
   playerInteractor: {fileID: 1061031106}
+--- !u!114 &251830130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 251830124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 477ef5ddd6511124382196b022c46174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FacilityViewer.Services.MaterialThemeService
+  appState: {fileID: 251830127}
+  themeCatalog:
+  - {fileID: 11400000, guid: 80ba16a16f3dd0c4ea1ec8d56126cf8d, type: 2}
+  - {fileID: 11400000, guid: 94948af002b917149b5ca879e9b911b1, type: 2}
+  - {fileID: 11400000, guid: 4fedc0f216206d34799d9111941f856c, type: 2}
 --- !u!1001 &1061031101
 PrefabInstance:
   m_ObjectHideFlags: 0

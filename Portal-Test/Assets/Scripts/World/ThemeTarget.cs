@@ -75,10 +75,10 @@ namespace FacilityViewer.World
         }
 
         /// <summary>
-        /// Resolves all requested theme materials and validates every target slot before
-        /// assigning anything. Successful assignments use only shared renderer materials.
+        /// Validates both renderer-slot mappings and every theme material needed by this target
+        /// without changing renderer state.
         /// </summary>
-        public bool TryApplyTheme(MaterialThemeDefinition theme, out string error)
+        public bool TryValidateTheme(MaterialThemeDefinition theme, out string error)
         {
             if (theme == null)
             {
@@ -87,6 +87,31 @@ namespace FacilityViewer.World
             }
 
             if (!TryPrepare(out error))
+            {
+                return false;
+            }
+
+            for (int index = 0; index < materialSlots.Count; index++)
+            {
+                ThemeTargetMaterialSlot mapping = materialSlots[index];
+                if (!theme.TryGetMaterial(mapping.GroupId, out _))
+                {
+                    error = $"Material theme '{theme.name}' has no material for group ID '{mapping.GroupId}'.";
+                    return false;
+                }
+            }
+
+            error = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Resolves all requested theme materials and validates every target slot before
+        /// assigning anything. Successful assignments use only shared renderer materials.
+        /// </summary>
+        public bool TryApplyTheme(MaterialThemeDefinition theme, out string error)
+        {
+            if (!TryValidateTheme(theme, out error))
             {
                 return false;
             }

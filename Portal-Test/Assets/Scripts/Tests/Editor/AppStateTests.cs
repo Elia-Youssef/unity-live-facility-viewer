@@ -77,6 +77,27 @@ namespace FacilityViewer.Tests
             Assert.That(GetProperty<string>("StatusMessage"), Is.EqualTo("Missing destination spawn"));
         }
 
+        [Test]
+        public void ThemeSelectionAndStatusUpdatesDoNotChangeTransitionState()
+        {
+            Invoke("Initialize", "Application services ready");
+            object loading = Enum.Parse(transitionPhaseType, "Loading");
+            Invoke("SetTransitionPhase", loading, "Loading Lobby");
+
+            Assert.That((bool)appStateType.GetMethod("SetSelectedTheme")
+                ?.Invoke(appState, new object[] { " maintenance " }), Is.True);
+            Invoke("SetStatusMessage", "Maintenance theme active");
+
+            Assert.That(GetProperty<string>("SelectedThemeId"), Is.EqualTo("maintenance"));
+            Assert.That(GetProperty<object>("TransitionPhase").ToString(), Is.EqualTo("Loading"));
+            Assert.That(GetProperty<bool>("IsTransitioning"), Is.True);
+            Assert.That(GetProperty<string>("StatusMessage"), Is.EqualTo("Maintenance theme active"));
+
+            Assert.That((bool)appStateType.GetMethod("SetSelectedTheme")
+                ?.Invoke(appState, new object[] { "unknown-theme" }), Is.False);
+            Assert.That(GetProperty<string>("SelectedThemeId"), Is.EqualTo("maintenance"));
+        }
+
         private void Invoke(string methodName, params object[] arguments)
         {
             appStateType.GetMethod(methodName)?.Invoke(appState, arguments);
