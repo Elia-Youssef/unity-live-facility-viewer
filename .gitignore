@@ -38,3 +38,6 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local project handoff state
+/PROJECT-MEMORY.md
